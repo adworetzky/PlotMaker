@@ -144,7 +144,7 @@ void setup() {
         .setSize(100, 20)
         .setFocus(true)
         .setColor(color(255, 0, 0))
-        .setText("CC");
+        .setText("test");
     cp5.addButton("saveImage")
         .setValue(1)
         .setPosition(190, 30)
@@ -357,7 +357,7 @@ void drawLines(PGraphics element_, float layer1Tolerance_, float layer2Tolerance
 
     // layer 1
     noiseSeed(randNoiseSeed);
-
+noiseDetail(10, .4);
     for (int y = margin; y < element_.height - margin; y += lineSpacing) {
         element_.stroke(cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB());
         element_.beginShape();
@@ -380,7 +380,8 @@ void drawLines(PGraphics element_, float layer1Tolerance_, float layer2Tolerance
 
     // layer 2
     element_.push();
-    noiseSeed(randNoiseSeed + 10);
+    noiseDetail(10, .55);
+    noiseSeed(randNoiseSeed);
     element_.strokeWeight(.5);
     for (int y = margin; y < element_.height - margin; y += lineSpacing) {
         element_.stroke(cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB());
@@ -404,7 +405,8 @@ void drawLines(PGraphics element_, float layer1Tolerance_, float layer2Tolerance
 
     // layer 3
     element_.push();
-    noiseSeed(randNoiseSeed + 20);
+        noiseDetail(10, .6);
+    noiseSeed(randNoiseSeed);
     element_.strokeWeight(.5);
     for (int y = margin; y < element_.height - margin; y += lineSpacing) {
         element_.stroke(cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB());
