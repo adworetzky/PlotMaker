@@ -1,5 +1,5 @@
 import processing.svg.*;
-// import de.ixdhof.hershey.*;
+import de.ixdhof.hershey.*;
 import controlP5.*;
 ControlP5 cp5;
 //  TODO
@@ -13,6 +13,7 @@ PGraphics fi;
 
 PImage imageForBuffer;
 PFont font;
+HersheyFont hf;
 
 String unsplashKeyword = "";
 int imageDimensionWidth = 900;
@@ -50,6 +51,10 @@ void setup() {
     // size(753,1188);
     font = createFont("IBMPlexMono-Bold.ttf", 50);
     // smooth();
+
+    // Hershey Font label set up
+    hf = new HersheyFont(this, "futural.jhf");
+    hf.textSize(5);
 
     // set up graphics buffers
     bufferDimensions = new PVector(383, 575);
@@ -92,7 +97,7 @@ void setup() {
     layer1ToleranceSlider = makeSlider("layer1Tolerance", 10, 30, -5, 5, 0);
     layer2ToleranceSlider = makeSlider("layer2Tolerance", 10, 45, -5, 5, 0);
     layer3ToleranceSlider = makeSlider("layer3Tolerance", 10, 60, -5, 5, 0);
-    tSizeSlider = makeSlider("tSize", 10, 75, 0, 140, 70);
+    tSizeSlider = makeSlider("tSize", 10, 75, 0, 500, 70);
     textXPosSlider = makeSlider("textXPos", 10, 30, -tb.width / 2, tb.width / 2, 0);
     textYPosSlider = makeSlider("textYPos", 10, 45, -tb.height / 2, tb.height / 2, 0-tSize/2);
     textRotationSlider = makeSlider("textRotation", 10, 60, -TWO_PI, TWO_PI, 0);
@@ -226,6 +231,10 @@ void draw() {
     fi.beginDraw();
     fi.background(255);
     drawLines(fi, layer1Tolerance, layer2Tolerance, layer3Tolerance, .007);
+    
+    // BROKEN
+    // addLabel(fi);
+    
     fi.endDraw();
     if (record) {
         closeRecord();
@@ -427,6 +436,21 @@ noiseDetail(10, .4);
         element_.endShape();
     }
     element_.pop();
+}
+
+// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY
+void addLabel(PGraphics element_) {
+    element_.pushMatrix();
+    element_.stroke(.1);
+    element_.translate(element_.width - 10, element_.height);
+    element_.rotate(radians(-90));
+    hf.text("P_0039_" + frameCount, 50, 0);
+    element_.popMatrix();
+
+    element_.pushMatrix();
+    element_.stroke(.1);
+    hf.text(month() + "/" + day() + "/" + year() + " - " + hour() + ":" + minute() + ":" + second(), 10, element_.height - 10);
+    element_.popMatrix();
 }
 
 void keyPressed() {
