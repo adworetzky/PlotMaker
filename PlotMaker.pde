@@ -42,6 +42,8 @@ float layer3ColorPicker;
 
 Textfield tbInput;
 Textfield unsplashKeywordInput;
+Textfield outputHeightInput;
+Textfield outputWidthInput;
 
 void setup() {
     // size(1000, 1000);
@@ -49,12 +51,12 @@ void setup() {
     surface.setResizable(true);
 
     // size(753,1188);
-    font = createFont("IBMPlexMono-Bold.ttf", 50);
+    // font = createFont("fonts/IBMPlexMono-Bold.ttf", 50);
+    // font = createFont("fonts/hngl.otf", 50);
+    // font = createFont("fonts/Basteleur-Bold.ttf", 50);
+    font = createFont("fonts/Karrik-Regular.ttf", 50);
+    // font = createFont("fonts/Format_1452.otf", 50);
     // smooth();
-
-    // Hershey Font label set up
-    hf = new HersheyFont(this, "futural.jhf");
-    hf.textSize(5);
 
     // set up graphics buffers
     bufferDimensions = new PVector(383, 575);
@@ -62,6 +64,10 @@ void setup() {
     tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     fi.smooth();
+
+    // Hershey Font label set up
+    hf = new HersheyFont(this,"futural.jhf");
+    hf.textSize(5);
 
     // set up UI
     cp5 = new ControlP5(this);
@@ -79,7 +85,7 @@ void setup() {
         .setColorBackground(color(0, 160, 100))
         .setColorLabel(color(255))
         .setColorActive(color(255, 128, 0));
-    cp5.addTab("Size")
+    cp5.addTab("Export")
         .setColorBackground(color(0, 160, 100))
         .setColorLabel(color(255))
         .setColorActive(color(255, 128, 0));
@@ -143,13 +149,29 @@ void setup() {
         .setPosition(10, 30)
         .setSize(100, 20)
         .setFocus(false)
+        .setAutoClear(false)
         .setColor(color(255, 0, 0));
     tbInput = cp5.addTextfield("input")
         .setPosition(200, 30)
         .setSize(100, 20)
         .setFocus(true)
+        .setAutoClear(false)
         .setColor(color(255, 0, 0))
         .setText("test");
+    outputWidthInput = cp5.addTextfield("outputWidth")
+        .setPosition(10, 30)
+        .setSize(100, 20)
+        .setFocus(false)
+        .setAutoClear(false)
+        .setColor(color(255, 0, 0))
+        .setText("383");
+    outputHeightInput = cp5.addTextfield("outputHeight")
+        .setPosition(10, 65)
+        .setSize(100, 20)
+        .setFocus(false)
+        .setAutoClear(false)
+        .setColor(color(255, 0, 0))
+        .setText("575");
     cp5.addButton("saveImage")
         .setValue(1)
         .setPosition(190, 30)
@@ -159,6 +181,10 @@ void setup() {
         .setValue(0)
         .setPosition(120, 30)
         .setSize(50, 20);
+    cp5.addButton("updateBufferSize")
+        .setValue(0)
+        .setPosition(10, 100)
+        .setSize(80, 20);
 
 
     // group controllers into tabs
@@ -177,7 +203,6 @@ void setup() {
     cp5.getController("tSize").moveTo("Frame 2");
     cp5.getController("leading").moveTo("Frame 2");
 
-    cp5.getController("saveImage").moveTo("Output");
     cp5.getController("layer1Tolerance").moveTo("Output");
     cp5.getController("layer2Tolerance").moveTo("Output");
     cp5.getController("layer3Tolerance").moveTo("Output");
@@ -187,6 +212,10 @@ void setup() {
     cp5.getController("layer3").moveTo("Output");
     cp5.getController("randomColors").moveTo("Output");
 
+    cp5.getController("saveImage").moveTo("Export");
+    cp5.getController("outputWidth").moveTo("Export");
+    cp5.getController("outputHeight").moveTo("Export");
+    cp5.getController("updateBufferSize").moveTo("Export");
 
     getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
     int randNoiseSeed = int(random(5000));
@@ -355,6 +384,16 @@ void randomColors() {
 
     }
 }
+
+void updateBufferSize(){
+    
+        bufferDimensions = new PVector(Integer.parseInt(cp5.get(Textfield.class, "outputWidth").getText()), Integer.parseInt(cp5.get(Textfield.class, "outputHeight").getText()));
+    ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
+    tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
+    fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
+    fi.smooth();
+}
+
 // --------------------------------------button events end
 
 // the meat and potatoes of the line drawing in frame 3, TODO: still uses get() and is slow, maybe change to pixel array index
@@ -451,6 +490,8 @@ void addLabel(PGraphics element_) {
     element_.stroke(.1);
     hf.text(month() + "/" + day() + "/" + year() + " - " + hour() + ":" + minute() + ":" + second(), 10, element_.height - 10);
     element_.popMatrix();
+
+    shape(hf.getShape("PROCESSING"));
 }
 
 void keyPressed() {
