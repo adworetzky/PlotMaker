@@ -639,7 +639,7 @@ void keyPressed() {
 // SVG record actions
 void startRecord() {
     if (record) {
-        fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y), SVG, "Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg");
+        fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y), SVG, "Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg");
     }
 }
 
