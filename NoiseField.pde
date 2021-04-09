@@ -39,6 +39,26 @@ void update(PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics text
     displacmentFactor = displacmentFactor_;
 }
 
+void loadPixelsForBuffers(){
+    imageLayerElement.loadPixels();
+    textLayerElement.loadPixels();
+}
+
+float getAverageBrightness() {
+  imageLayerElement.loadPixels();
+  int r = 0, g = 0, b = 0;
+  for (int i=0; i<imageLayerElement.pixels.length; i++) {
+    color c = imageLayerElement.pixels[i];
+    r += c>>16&0xFF;
+    g += c>>8&0xFF;
+    b += c&0xFF;
+  }
+  r /= imageLayerElement.pixels.length;
+  g /= imageLayerElement.pixels.length;
+  b /= imageLayerElement.pixels.length;
+  return map(brightness(color(r, g, b)),0,255,-5,5);
+}
+
 void drawRedLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
@@ -51,9 +71,10 @@ void drawRedLayer() {
         outputElement.beginShape();
         for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
             float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5, displacmentFactor * .5);
-            color c = imageLayerElement.get(int(x + noiseVar), int(y + noiseVar));
-            float r = map(red(c), 0, 255, -5, 5);
-            color c2 = textLayerElement.get(int(x + noiseVar), int(y + noiseVar));
+            int imageLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            int textLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            float r = map(red(imageLayerElement.pixels[imageLayerIndex]),0,255,-5,5);
+            color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
             if (r < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + r);
@@ -79,9 +100,10 @@ void drawBlueLayer() {
         outputElement.beginShape();
         for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
             float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5, displacmentFactor * .5);
-            color c = imageLayerElement.get(int(x + noiseVar), int(y + noiseVar));
-            float b = map(blue(c), 0, 255, -5, 5);
-            color c2 = textLayerElement.get(int(x + noiseVar), int(y + noiseVar));
+            int imageLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            int textLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            float b = map(blue(imageLayerElement.pixels[imageLayerIndex]),0,255,-5,5);
+            color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
             if (b < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + b);
@@ -107,9 +129,10 @@ void drawGreenLayer() {
         outputElement.beginShape();
         for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
             float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5, displacmentFactor * .5);
-            color c = imageLayerElement.get(int(x + noiseVar), int(y + noiseVar));
-            float g = map(green(c), 0, 255, -5, 5);
-            color c2 = textLayerElement.get(int(x + noiseVar), int(y + noiseVar));
+            int imageLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            int textLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            float g = map(green(imageLayerElement.pixels[imageLayerIndex]),0,255,-5,5);
+            color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
             if (g < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + g);
@@ -135,12 +158,14 @@ void drawBlackLayer() {
         outputElement.beginShape();
         for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
             float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5, displacmentFactor * .5);
-            color c = imageLayerElement.get(int(x + noiseVar), int(y + noiseVar));
-            float bla = map(brightness(c), 0, 255, -5, 5);
-            color c2 = textLayerElement.get(int(x + noiseVar), int(y + noiseVar));
+            int imageLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            int textLayerIndex = x+int(noiseVar) + ((y+int(noiseVar))*imageLayerElement.width);
+            color bla = color(red(imageLayerElement.pixels[imageLayerIndex]),green(imageLayerElement.pixels[imageLayerIndex]),blue(imageLayerElement.pixels[imageLayerIndex]));
+            float blaBrightness = map(brightness(bla),0,255,-5,5);
+            color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
-            if (bla < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
-                outputElement.curveVertex(x + noiseVar, y + noiseVar + bla);
+            if (blaBrightness < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+                outputElement.curveVertex(x + noiseVar, y + noiseVar + blaBrightness);
             } else {
                 outputElement.endShape();
                 outputElement.beginShape();

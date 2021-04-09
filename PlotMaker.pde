@@ -184,6 +184,11 @@ void setup() {
         .setValue(0)
         .setPosition(240, 130)
         .setSize(70, 20);
+    cp5.addButton("averageTolerance")
+        .setValue(0)
+        .setPosition(30, 130)
+        .setSize(100
+        , 20);
     unsplashKeywordInput = cp5.addTextfield("unsplashKeyword")
         .setPosition(10, 30)
         .setSize(100, 20)
@@ -257,6 +262,7 @@ void setup() {
     cp5.getController("layer4").moveTo("Output");
     cp5.getController("randomColors").moveTo("Output");
     cp5.getController("margin").moveTo("Output");
+    cp5.getController("averageTolerance").moveTo("Output");
 
 
     cp5.getController("saveImage").moveTo("Export");
@@ -288,7 +294,6 @@ void draw() {
     ib.image(imageForBuffer, imageXPos, imageYPos);
     ib.pop();
     ib.endDraw();
-    ib.loadPixels();
 
     // frame 2, text layer (maybe also inmage layer if i get around to it)
     tb.beginDraw();
@@ -303,7 +308,6 @@ void draw() {
     tb.text(cp5.get(Textfield.class, "input").getText(), -tb.width / 2, 0, tb.width, tb.height);
     tb.pop();
     tb.endDraw();
-    tb.loadPixels();
 
     // frame 3, combined and drawn with lines
     if (record) {
@@ -311,12 +315,20 @@ void draw() {
     }
     fi.beginDraw();
     fi.background(255);
+
+    nfYellow.loadPixelsForBuffers();
     nfYellow.update(fi,ib,tb,yellowLayerTolerance,.007,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfYellow.drawGreenLayer();
+    
+    nfMagenta.loadPixelsForBuffers();
     nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.007,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfMagenta.drawRedLayer();
+    
+    nfCyan.loadPixelsForBuffers();
     nfCyan.update(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfCyan.drawBlueLayer();
+    
+    nfBlack.loadPixelsForBuffers();
     nfBlack.update(fi,ib,tb,blackLayerTolerance,.007,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
     // BROKEN
@@ -476,6 +488,51 @@ void layer4() {
             layer3On = false;
             layer4On = false;
         }
+    }
+}
+
+void averageTolerance(){
+    if(frameCount>0){
+    ib.loadPixels();
+    int r = 0, g = 0, b = 0;
+    int r1 = 0, g1 = 0, b1 = 0;
+    for (int i=0; i<ib.pixels.length; i++) {
+        color c = ib.pixels[i];
+        r += c>>16&0xFF;
+    }
+    r /= ib.pixels.length;
+
+    for (int i=0; i<ib.pixels.length; i++) {
+        color c = ib.pixels[i];
+        g += c>>8&0xFF;
+    }
+    g /= ib.pixels.length;
+
+        for (int i=0; i<ib.pixels.length; i++) {
+        color c = ib.pixels[i];
+        b += c&0xFF;
+    }
+    b /= ib.pixels.length;
+
+        for (int i=0; i<ib.pixels.length; i++) {
+        color c = ib.pixels[i];
+        r1 += c>>16&0xFF;
+        g1 += c>>8&0xFF;
+        b1 += c&0xFF;
+    }
+    r1 /= ib.pixels.length;
+    g1 /= ib.pixels.length;
+    b1 /= ib.pixels.length;
+    float bla = brightness(color(r1,g1,b1));
+
+    float averageThresholdCyan =  map(b,0,255,-5,5);
+    float averageThresholdMagenta =  map(r,0,255,-5,5);
+    float averageThresholdYellow =  map(g,0,255,-5,5);
+    float averageThresholdBlack =  map(bla,0,255,-5,5);
+    cyanLayerToleranceSlider.setValue(averageThresholdCyan);
+    yellowLayerToleranceSlider.setValue(averageThresholdYellow);
+    magentaLayerToleranceSlider.setValue(averageThresholdMagenta);
+    blackLayerToleranceSlider.setValue(averageThresholdBlack);
     }
 }
 
