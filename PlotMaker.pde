@@ -10,6 +10,10 @@ import drop.*;
 
 ControlP5 cp5;
 SDrop drop;
+NoiseField nfCyan;
+NoiseField nfMagenta;
+NoiseField nfYellow;
+NoiseField nfBlack;
 
 //  TODO
 // change layer color-DONE
@@ -265,6 +269,11 @@ void setup() {
     int randNoiseSeed = int(random(5000));
     noiseSeed(randNoiseSeed);
 
+    // NoiseField setup
+    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
 }
 
 void draw() {
@@ -302,11 +311,16 @@ void draw() {
     }
     fi.beginDraw();
     fi.background(255);
-    drawLines(fi, yellowLayerTolerance, magentaLayerTolerance, cyanLayerTolerance, blackLayerTolerance, .007);
-
+    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.007,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow.drawGreenLayer();
+    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.007,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta.drawRedLayer();
+    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan.drawBlueLayer();
+    nfBlack.update(fi,ib,tb,blackLayerTolerance,.007,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack.drawBlackLayer();
     // BROKEN
     // addLabel(fi);
-
     fi.endDraw();
     if (record) {
         closeRecord();
@@ -505,111 +519,6 @@ void fitImage(){
 
 // --------------------------------------button events end
 
-// the meat and potatoes of the line drawing in frame 3, TODO: still uses get() and is slow, maybe change to pixel array index
-void drawLines(PGraphics element_, float layer1Tolerance_, float layer2Tolerance_, float layer3Tolerance_,float layer4Tolerance_, float noiseScalar_) {
-    fi.blendMode(BLEND);
-    element_.noFill();
-
-    // layer 1
-    element_.push();
-    element_.strokeWeight(.5);
-    noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4);
-    for (int y = margin; y < element_.height - margin; y += lineSpacing) {
-        element_.stroke(cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB());
-        element_.beginShape();
-        for (int x = margin; x < element_.width - margin; x += lineSpacing) {
-            noiseVar = map(noise((x) * noiseScalar_, (y) * noiseScalar_), 0, 1, -displacmentFactor * .5, displacmentFactor * .5);
-            color c = ib.get(int(x + noiseVar), int(y + noiseVar));
-            float r = map(red(c), 0, 255, -5, 5);
-            color c2 = tb.get(int(x + noiseVar), int(y + noiseVar));
-            float bri = brightness(c2);
-            if (r < layer1Tolerance_ && bri > 0 && x + noiseVar < element_.width - margin && x + noiseVar > margin && y + noiseVar < element_.height - margin && y + noiseVar > margin) {
-                element_.curveVertex(x + noiseVar, y + noiseVar + r);
-            } else {
-                element_.endShape();
-                element_.beginShape();
-            }
-        }
-        element_.endShape();
-    }
-    element_.pop();
-
-
-    // layer 2
-    element_.push();
-    noiseDetail(10, .55);
-    noiseSeed(randNoiseSeed);
-    element_.strokeWeight(.5);
-    for (int y = margin; y < element_.height - margin; y += lineSpacing) {
-        element_.stroke(cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB());
-        element_.beginShape();
-        for (int x = margin; x < element_.width - margin; x += lineSpacing) {
-            noiseVar = map(noise((x) * noiseScalar_, (y) * noiseScalar_), 0, 1, -displacmentFactor * .55, displacmentFactor * .55);
-            color c = ib.get(int(x + noiseVar), int(y + noiseVar));
-            float b = map(blue(c), 0, 255, -5, 5);
-            color c2 = tb.get(int(x + noiseVar), int(y + noiseVar));
-            float bri = brightness(c2);
-            if (b < layer2Tolerance_ && bri > 0 && x + noiseVar < element_.width - margin && x + noiseVar > margin && y + noiseVar < element_.height - margin && y + noiseVar > margin) {
-                element_.curveVertex(x + noiseVar, y + noiseVar + b);
-            } else {
-                element_.endShape();
-                element_.beginShape();
-            }
-        }
-        element_.endShape();
-    }
-    element_.pop();
-
-    // layer 3
-    element_.push();
-    noiseDetail(10, .6);
-    noiseSeed(randNoiseSeed);
-    element_.strokeWeight(.5);
-    for (int y = margin; y < element_.height - margin; y += lineSpacing) {
-        element_.stroke(cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB());
-        element_.beginShape();
-        for (int x = margin; x < element_.width - margin; x += lineSpacing) {
-            noiseVar = map(noise((x) * noiseScalar_, (y) * noiseScalar_), 0, 1, -displacmentFactor * .6, displacmentFactor * .6);
-            color c = ib.get(int(x + noiseVar), int(y + noiseVar));
-            float g = map(green(c), 0, 255, -5, 5);
-            color c2 = tb.get(int(x + noiseVar), int(y + noiseVar));
-            float bri = brightness(c2);
-            if (g < layer3Tolerance_ && bri > 0 && x + noiseVar < element_.width - margin && x + noiseVar > margin && y + noiseVar < element_.height - margin && y + noiseVar > margin) {
-                element_.curveVertex(x + noiseVar, y + noiseVar + g);
-            } else {
-                element_.endShape();
-                element_.beginShape();
-            }
-        }
-        element_.endShape();
-    }
-
-    element_.pop();
-        element_.push();
-    noiseDetail(10, .6);
-    noiseSeed(randNoiseSeed);
-    element_.strokeWeight(.5);
-    for (int y = margin; y < element_.height - margin; y += lineSpacing) {
-        element_.stroke(cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB());
-        element_.beginShape();
-        for (int x = margin; x < element_.width - margin; x += lineSpacing) {
-            noiseVar = map(noise((x) * noiseScalar_, (y) * noiseScalar_), 0, 1, -displacmentFactor * .6, displacmentFactor * .6);
-            color c = ib.get(int(x + noiseVar), int(y + noiseVar));
-            float bl = map(brightness(c), 0, 255, -5, 5);
-            color c2 = tb.get(int(x + noiseVar), int(y + noiseVar));
-            float bri = brightness(c2);
-            if (bl < layer4Tolerance_ && bri > 0 && x + noiseVar < element_.width - margin && x + noiseVar > margin && y + noiseVar < element_.height - margin && y + noiseVar > margin) {
-                element_.curveVertex(x + noiseVar, y + noiseVar + bl);
-            } else {
-                element_.endShape();
-                element_.beginShape();
-            }
-        }
-        element_.endShape();
-    }
-    element_.pop();
-}
 
 // Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY
 void addLabel(PGraphics element_) {

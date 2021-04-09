@@ -31,6 +31,10 @@ public class PlotMaker extends PApplet {
 
 ControlP5 cp5;
 SDrop drop;
+NoiseField nfCyan;
+NoiseField nfMagenta;
+NoiseField nfYellow;
+NoiseField nfBlack;
 
 //  TODO
 // change layer color-DONE
@@ -286,6 +290,11 @@ public void setup() {
     int randNoiseSeed = PApplet.parseInt(random(5000));
     noiseSeed(randNoiseSeed);
 
+    // NoiseField setup
+    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
 }
 
 public void draw() {
@@ -323,7 +332,14 @@ public void draw() {
     }
     fi.beginDraw();
     fi.background(255);
-    drawLines(fi, yellowLayerTolerance, magentaLayerTolerance, cyanLayerTolerance, blackLayerTolerance, .007f);
+    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack.update(fi,ib,tb,blackLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow.drawGreenLayer();
+    nfMagenta.drawRedLayer();
+    nfCyan.drawBlueLayer();
+    nfBlack.drawBlackLayer();
 
     // BROKEN
     // addLabel(fi);
@@ -528,7 +544,7 @@ public void fitImage(){
 
 // the meat and potatoes of the line drawing in frame 3, TODO: still uses get() and is slow, maybe change to pixel array index
 public void drawLines(PGraphics element_, float layer1Tolerance_, float layer2Tolerance_, float layer3Tolerance_,float layer4Tolerance_, float noiseScalar_) {
-    fi.blendMode(BLEND);
+    element_.blendMode(BLEND);
     element_.noFill();
 
     // layer 1
@@ -694,6 +710,160 @@ public void dropEvent(DropEvent theDropEvent) {
     }
     println("Done!");
 imageForBuffer.loadPixels();
+}
+class NoiseField { 
+
+    PGraphics outputElement;
+    PGraphics imageLayerElement;
+    PGraphics textLayerElement;
+    float layerTolerance;
+    float noiseScalar;
+    int strokeColor;
+    int randNoiseSeed;
+    int margin;
+    float lineSpacing;
+    float displacmentFactor;
+
+
+
+  NoiseField (PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics textLayerElement_, float layerTolerance_, float noiseScalar_, int strokeColor_, int randNoiseSeed_, int margin_, float lineSpacing_,float displacmentFactor_) {  
+    outputElement=outputElement_;
+    imageLayerElement=imageLayerElement_;
+    textLayerElement= textLayerElement_;
+    layerTolerance=layerTolerance_;
+    noiseScalar=noiseScalar_;
+    strokeColor = strokeColor_;
+    randNoiseSeed = randNoiseSeed_;
+    margin = margin_;
+    lineSpacing = lineSpacing_;
+    displacmentFactor = displacmentFactor_;
+  } 
+
+public void update(PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics textLayerElement_, float layerTolerance_, float noiseScalar_, int strokeColor_, int randNoiseSeed_, int margin_, float lineSpacing_,float displacmentFactor_){
+    outputElement=outputElement_;
+    imageLayerElement=imageLayerElement_;
+    textLayerElement= textLayerElement_;
+    layerTolerance=layerTolerance_;
+    noiseScalar=noiseScalar_;
+    strokeColor = strokeColor_;
+    randNoiseSeed = randNoiseSeed_;
+    margin = margin_;
+    lineSpacing = lineSpacing_;
+    displacmentFactor = displacmentFactor_;
+}
+
+public void drawRedLayer() {
+    // outputElement_.blendMode(BLEND);
+    outputElement.noFill();
+    outputElement.push();
+    outputElement.strokeWeight(.5f);
+    noiseSeed(randNoiseSeed);
+    noiseDetail(10, .4f);
+    for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
+        outputElement.stroke(strokeColor);
+        outputElement.beginShape();
+        for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
+            float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5f, displacmentFactor * .5f);
+            int c = imageLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float r = map(red(c), 0, 255, -5, 5);
+            int c2 = textLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float bri = brightness(c2);
+            if (r < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+                outputElement.curveVertex(x + noiseVar, y + noiseVar + r);
+            } else {
+                outputElement.endShape();
+                outputElement.beginShape();
+            }
+        }
+        outputElement.endShape();
+    }
+     outputElement.pop();
+}
+
+public void drawBlueLayer() {
+    // outputElement_.blendMode(BLEND);
+    outputElement.noFill();
+    outputElement.push();
+    outputElement.strokeWeight(.5f);
+    noiseSeed(randNoiseSeed);
+    noiseDetail(10, .4f);
+    for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
+        outputElement.stroke(strokeColor);
+        outputElement.beginShape();
+        for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
+            float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5f, displacmentFactor * .5f);
+            int c = imageLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float b = map(blue(c), 0, 255, -5, 5);
+            int c2 = textLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float bri = brightness(c2);
+            if (b < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+                outputElement.curveVertex(x + noiseVar, y + noiseVar + b);
+            } else {
+                outputElement.endShape();
+                outputElement.beginShape();
+            }
+        }
+        outputElement.endShape();
+    }
+     outputElement.pop();
+}
+
+public void drawGreenLayer() {
+    // outputElement_.blendMode(BLEND);
+    outputElement.noFill();
+    outputElement.push();
+    outputElement.strokeWeight(.5f);
+    noiseSeed(randNoiseSeed);
+    noiseDetail(10, .4f);
+    for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
+        outputElement.stroke(strokeColor);
+        outputElement.beginShape();
+        for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
+            float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5f, displacmentFactor * .5f);
+            int c = imageLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float g = map(green(c), 0, 255, -5, 5);
+            int c2 = textLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float bri = brightness(c2);
+            if (g < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+                outputElement.curveVertex(x + noiseVar, y + noiseVar + g);
+            } else {
+                outputElement.endShape();
+                outputElement.beginShape();
+            }
+        }
+        outputElement.endShape();
+    }
+     outputElement.pop();
+}
+
+public void drawBlackLayer() {
+    // outputElement_.blendMode(BLEND);
+    outputElement.noFill();
+    outputElement.push();
+    outputElement.strokeWeight(.5f);
+    noiseSeed(randNoiseSeed);
+    noiseDetail(10, .4f);
+    for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
+        outputElement.stroke(strokeColor);
+        outputElement.beginShape();
+        for (int x = margin; x < outputElement.width - margin; x += lineSpacing) {
+            float noiseVar = map(noise((x) * noiseScalar, (y) * noiseScalar), 0, 1, -displacmentFactor * .5f, displacmentFactor * .5f);
+            int c = imageLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float bla = map(brightness(c), 0, 255, -5, 5);
+            int c2 = textLayerElement.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
+            float bri = brightness(c2);
+            if (bla < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+                outputElement.curveVertex(x + noiseVar, y + noiseVar + bla);
+            } else {
+                outputElement.endShape();
+                outputElement.beginShape();
+            }
+        }
+        outputElement.endShape();
+    }
+     outputElement.pop();
+}
+
 }
   public void settings() {  size(1200, 800);  smooth(); }
   static public void main(String[] passedArgs) {
