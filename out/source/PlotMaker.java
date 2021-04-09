@@ -6,6 +6,7 @@ import processing.opengl.*;
 import processing.svg.*; 
 import de.ixdhof.hershey.*; 
 import controlP5.*; 
+import drop.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -26,12 +27,14 @@ public class PlotMaker extends PApplet {
 
 
 
+
+
 ControlP5 cp5;
+SDrop drop;
 
 //  TODO
 // change layer color-DONE
-// drag and drop img-hmmm... maybe this? 
-// http://www.sojamo.de/libraries/drop/#:~:text=sDrop%20is%20a%20processing%20library,forwarded%20to%20the%20processing%20sketch.
+// drag and drop img- DONE
 // change size of export(done) with presets for different papers(not done)
 // Font Selection (have to figure out drop down menus in cp5)
 // Dual Images, like double exposure (stretch but cool)
@@ -59,6 +62,9 @@ boolean layer1On = false;
 boolean layer2On = false;
 boolean layer3On = false;
 boolean layer4On = false;
+
+int uIbackground = color(100, 0, 100);
+int uIbackgroundActive = color(0, 100, 100);
 
 Slider viewportScalerSlider, yellowLayerToleranceSlider, magentaLayerToleranceSlider, cyanLayerToleranceSlider,blackLayerToleranceSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider;
 float viewportScaler, yellowLayerTolerance, magentaLayerTolerance, cyanLayerTolerance,blackLayerTolerance, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale;
@@ -97,34 +103,40 @@ public void setup() {
     fi = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
     fi.smooth();
 
+    // Drag and Drop Setup
+    drop = new SDrop(this);
+
     // Hershey Font label set up
     hf = new HersheyFont(this, "futural.jhf");
     hf.textSize(5);
+
+    // Sdrop setup
+    drop = new SDrop(this);
 
     // set up UI
     cp5 = new ControlP5(this);
 
     // create tabs
     cp5.addTab("Frame 2")
-        .setColorBackground(color(0, 160, 100))
+        .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(color(255, 128, 0));
+        .setColorActive(uIbackgroundActive);
     cp5.addTab("Output")
-        .setColorBackground(color(0, 160, 100))
+        .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(color(255, 128, 0));
+        .setColorActive(uIbackgroundActive);
     cp5.addTab("Viewport")
-        .setColorBackground(color(0, 160, 100))
+        .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(color(255, 128, 0));
+        .setColorActive(uIbackgroundActive);
     cp5.addTab("Export")
-        .setColorBackground(color(0, 160, 100))
+        .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(color(255, 128, 0));
+        .setColorActive(uIbackgroundActive);
     cp5.getTab("default")
-        .setColorBackground(color(0, 160, 100))
+        .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(color(255, 128, 0))
+        .setColorActive(uIbackgroundActive)
         .setLabel("Frame 1");
 
     // create UI elements
@@ -147,6 +159,7 @@ public void setup() {
         .setWidth(100)
         .setRange(1, 5)
         .setValue(2)
+        .setColorForeground(uIbackgroundActive)
         .setNumberOfTickMarks(5);
     layer1CP = cp5.addColorWheel("layer1ColorPicker")
         .setPosition(290, 20)
@@ -224,6 +237,10 @@ public void setup() {
         .setValue(0)
         .setPosition(120, 30)
         .setSize(50, 20);
+    cp5.addButton("fitImage")
+        .setValue(0)
+        .setPosition(180, 30)
+        .setSize(50, 20);
     cp5.addButton("updateBufferSize")
         .setValue(0)
         .setPosition(10, 100)
@@ -279,7 +296,7 @@ public void draw() {
     ib.translate(ib.width / 2, ib.height / 2);
     ib.scale(imageScale, imageScale);
     ib.imageMode(CENTER);
-    ib.background(20);
+    ib.background(10);
     ib.image(imageForBuffer, imageXPos, imageYPos);
     ib.pop();
     ib.endDraw();
@@ -335,7 +352,8 @@ public Slider makeSlider(String name, int posX, int posY, float rangeMin, float 
         .setPosition(posX, posY)
         .setWidth(100)
         .setRange(rangeMin, rangeMax)
-        .setValue(value);
+        .setValue(value)
+        .setColorForeground(uIbackgroundActive);
     return s;
 }
 
@@ -490,6 +508,22 @@ public void updateBufferSize() {
     }
 }
 
+public void fitImage(){
+    if (frameCount > 0) {
+    cp5.getController("imageXPos").setValue(0);
+    cp5.getController("imageYPos").setValue(0);
+    cp5.getController("imageScale").setValue(1);
+    println("Resizing Image...");
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
+    println("Done!");
+    imageForBuffer.loadPixels();
+    }
+}
+
 // --------------------------------------button events end
 
 // the meat and potatoes of the line drawing in frame 3, TODO: still uses get() and is slow, maybe change to pixel array index
@@ -538,7 +572,7 @@ public void drawLines(PGraphics element_, float layer1Tolerance_, float layer2To
             int c2 = tb.get(PApplet.parseInt(x + noiseVar), PApplet.parseInt(y + noiseVar));
             float bri = brightness(c2);
             if (b < layer2Tolerance_ && bri > 0 && x + noiseVar < element_.width - margin && x + noiseVar > margin && y + noiseVar < element_.height - margin && y + noiseVar > margin) {
-                element_.curveVertex(x + noiseVar, y + noiseVar + b);cp5.getController("imageYPos").setValue(0);
+                element_.curveVertex(x + noiseVar, y + noiseVar + b);
             } else {
                 element_.endShape();
                 element_.beginShape();
@@ -637,6 +671,29 @@ public void closeRecord() {
         fi.smooth();
         record = !record;
     }
+}
+
+public void dropEvent(DropEvent theDropEvent) {
+  println("");
+  println("isFile()\t"+theDropEvent.isFile());
+  println("isImage()\t"+theDropEvent.isImage());
+  println("isURL()\t"+theDropEvent.isURL());
+  
+  // if the dropped object is an image, then 
+  // load the image into our PImage.
+    if(theDropEvent.isImage()) {
+    println("Loading Image ...");
+    imageForBuffer = theDropEvent.loadImage();
+    println("Done");
+  }
+  println("Resizing Image...");
+    if(imageForBuffer.height>imageForBuffer.width){
+    imageForBuffer.resize(ib.width, 0);
+    } else if(imageForBuffer.width>imageForBuffer.height){
+    imageForBuffer.resize(0, ib.height);    
+    }
+    println("Done!");
+imageForBuffer.loadPixels();
 }
   public void settings() {  size(1200, 800);  smooth(); }
   static public void main(String[] passedArgs) {
