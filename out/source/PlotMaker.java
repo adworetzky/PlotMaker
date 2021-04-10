@@ -105,7 +105,7 @@ public void setup() {
     ib = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
     tb = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
     fi = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
-    fi.smooth();
+    fi.smooth(4);
 
     // Drag and Drop Setup
     drop = new SDrop(this);
@@ -297,10 +297,12 @@ public void setup() {
     noiseSeed(randNoiseSeed);
 
     // NoiseField setup
-    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+
+    
 }
 
 public void draw() {
@@ -336,21 +338,24 @@ public void draw() {
     }
     fi.beginDraw();
     fi.background(255);
+        if(frameCount<2){
+        averageTolerance();
+    }
 
     nfYellow.loadPixelsForBuffers();
-    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfYellow.drawGreenLayer();
     
     nfMagenta.loadPixelsForBuffers();
-    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfMagenta.drawRedLayer();
     
     nfCyan.loadPixelsForBuffers();
-    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfCyan.drawBlueLayer();
     
     nfBlack.loadPixelsForBuffers();
-    nfBlack.update(fi,ib,tb,blackLayerTolerance,.007f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack.update(fi,ib,tb,blackLayerTolerance,.01f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
     // BROKEN
     // addLabel(fi);
@@ -394,11 +399,13 @@ public void getImage(String k) {
     // imageForBuffer = loadImage("https://source.unsplash.com/" + imageDimensionWidth + "x" + imageDimensionHeight + "/?" + k, "jpg");
     imageForBuffer = loadImage("https://source.unsplash.com/random/?" + k, "jpg");
     // imageForBuffer = loadImage("Dino.jpg", "jpg");
-    if(imageForBuffer.height>imageForBuffer.width){
-    imageForBuffer.resize(ib.width, 0);
-    } else if(imageForBuffer.width>imageForBuffer.height){
-    imageForBuffer.resize(0, ib.height);    
-    }
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
     imageForBuffer.loadPixels();
     println("Done!");
 }
@@ -572,9 +579,16 @@ public void updateBufferSize() {
     ib = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
     tb = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
     fi = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y));
-    fi.smooth();
+    fi.smooth(4);
 
-    imageForBuffer.resize(ib.width, 0);
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
+
     imageForBuffer.loadPixels();
     }
 }
@@ -588,6 +602,8 @@ public void fitImage(){
         if(imageForBuffer.height>imageForBuffer.width){
         imageForBuffer.resize(ib.width, 0);
         } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
         imageForBuffer.resize(0, ib.height);    
         }
     println("Done!");
@@ -653,11 +669,13 @@ public void dropEvent(DropEvent theDropEvent) {
     println("Done");
   }
   println("Resizing Image...");
-    if(imageForBuffer.height>imageForBuffer.width){
-    imageForBuffer.resize(ib.width, 0);
-    } else if(imageForBuffer.width>imageForBuffer.height){
-    imageForBuffer.resize(0, ib.height);    
-    }
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
     println("Done!");
 imageForBuffer.loadPixels();
 }
@@ -726,9 +744,9 @@ public void drawRedLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5f);
+    outputElement.strokeWeight(.7f);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4f);
+    noiseDetail(10, .5f);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();
@@ -755,9 +773,9 @@ public void drawBlueLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5f);
+    outputElement.strokeWeight(.7f);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4f);
+    noiseDetail(10, .51f);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();
@@ -784,9 +802,9 @@ public void drawGreenLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5f);
+    outputElement.strokeWeight(.7f);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4f);
+    noiseDetail(10, .52f);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();
@@ -813,9 +831,9 @@ public void drawBlackLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5f);
+    outputElement.strokeWeight(.7f);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4f);
+    noiseDetail(10, .53f);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();

@@ -63,9 +63,9 @@ void drawRedLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5);
+    outputElement.strokeWeight(.7);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4);
+    noiseDetail(10, .5);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();
@@ -92,9 +92,9 @@ void drawBlueLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5);
+    outputElement.strokeWeight(.7);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4);
+    noiseDetail(10, .51);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();
@@ -121,9 +121,9 @@ void drawGreenLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5);
+    outputElement.strokeWeight(.7);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4);
+    noiseDetail(10, .52);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();
@@ -150,9 +150,9 @@ void drawBlackLayer() {
     // outputElement_.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
-    outputElement.strokeWeight(.5);
+    outputElement.strokeWeight(.7);
     noiseSeed(randNoiseSeed);
-    noiseDetail(10, .4);
+    noiseDetail(10, .53);
     for (int y = margin; y < outputElement.height - margin; y += lineSpacing) {
         outputElement.stroke(strokeColor);
         outputElement.beginShape();

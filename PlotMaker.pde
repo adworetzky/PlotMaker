@@ -84,7 +84,7 @@ void setup() {
     ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    fi.smooth();
+    fi.smooth(4);
 
     // Drag and Drop Setup
     drop = new SDrop(this);
@@ -276,10 +276,12 @@ void setup() {
     noiseSeed(randNoiseSeed);
 
     // NoiseField setup
-    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+
+    
 }
 
 void draw() {
@@ -315,21 +317,24 @@ void draw() {
     }
     fi.beginDraw();
     fi.background(255);
+        if(frameCount<2){
+        averageTolerance();
+    }
 
     nfYellow.loadPixelsForBuffers();
-    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.007,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfYellow.drawGreenLayer();
     
     nfMagenta.loadPixelsForBuffers();
-    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.007,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfMagenta.drawRedLayer();
     
     nfCyan.loadPixelsForBuffers();
-    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.007,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfCyan.drawBlueLayer();
     
     nfBlack.loadPixelsForBuffers();
-    nfBlack.update(fi,ib,tb,blackLayerTolerance,.007,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack.update(fi,ib,tb,blackLayerTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
     // BROKEN
     // addLabel(fi);
@@ -373,11 +378,13 @@ void getImage(String k) {
     // imageForBuffer = loadImage("https://source.unsplash.com/" + imageDimensionWidth + "x" + imageDimensionHeight + "/?" + k, "jpg");
     imageForBuffer = loadImage("https://source.unsplash.com/random/?" + k, "jpg");
     // imageForBuffer = loadImage("Dino.jpg", "jpg");
-    if(imageForBuffer.height>imageForBuffer.width){
-    imageForBuffer.resize(ib.width, 0);
-    } else if(imageForBuffer.width>imageForBuffer.height){
-    imageForBuffer.resize(0, ib.height);    
-    }
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
     imageForBuffer.loadPixels();
     println("Done!");
 }
@@ -551,9 +558,16 @@ void updateBufferSize() {
     ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    fi.smooth();
+    fi.smooth(4);
 
-    imageForBuffer.resize(ib.width, 0);
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
+
     imageForBuffer.loadPixels();
     }
 }
@@ -567,6 +581,8 @@ void fitImage(){
         if(imageForBuffer.height>imageForBuffer.width){
         imageForBuffer.resize(ib.width, 0);
         } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
         imageForBuffer.resize(0, ib.height);    
         }
     println("Done!");
@@ -632,11 +648,13 @@ void dropEvent(DropEvent theDropEvent) {
     println("Done");
   }
   println("Resizing Image...");
-    if(imageForBuffer.height>imageForBuffer.width){
-    imageForBuffer.resize(ib.width, 0);
-    } else if(imageForBuffer.width>imageForBuffer.height){
-    imageForBuffer.resize(0, ib.height);    
-    }
+        if(imageForBuffer.height>imageForBuffer.width){
+        imageForBuffer.resize(ib.width, 0);
+        } else if(imageForBuffer.width>imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }else if(imageForBuffer.width==imageForBuffer.height){
+        imageForBuffer.resize(0, ib.height);    
+        }
     println("Done!");
 imageForBuffer.loadPixels();
 }
