@@ -45,30 +45,26 @@ boolean layer1On = false;
 boolean layer2On = false;
 boolean layer3On = false;
 boolean layer4On = false;
+boolean splitView = true;
+boolean imageView, outputView;
 
 color uIbackground = color(100, 0, 100);
 color uIbackgroundActive = color(0, 100, 100);
 
-Slider viewportScalerSlider, yellowLayerToleranceSlider, magentaLayerToleranceSlider, cyanLayerToleranceSlider,blackLayerToleranceSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider;
-float viewportScaler, yellowLayerTolerance, magentaLayerTolerance, cyanLayerTolerance,blackLayerTolerance, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale;
+Slider viewportScalerSlider, yellowLayerLowToleranceSlider, magentaLayerLowToleranceSlider, cyanLayerLowToleranceSlider,blackLayerLowToleranceSlider, yellowLayerHighToleranceSlider, magentaLayerHighToleranceSlider, cyanLayerHighToleranceSlider,blackLayerHighToleranceSlider,toleranceRangeSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider;
+float viewportScaler, yellowLayerLowTolerance, magentaLayerLowTolerance, cyanLayerLowTolerance,blackLayerLowTolerance,yellowLayerHighTolerance, magentaLayerHighTolerance, cyanLayerHighTolerance,blackLayerHighTolerance,toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale;
 
-ColorWheel layer1CP;
-float layer1ColorPicker;
-ColorWheel layer2CP;
-float layer2ColorPicker;
-ColorWheel layer3CP;
-float layer3ColorPicker;
-ColorWheel layer4CP;
-float layer4ColorPicker;
+ColorWheel layer1CP, layer2CP, layer3CP, layer4CP;
+float layer1ColorPicker,layer2ColorPicker,layer3ColorPicker, layer4ColorPicker;
 
-Textfield tbInput;
-Textfield unsplashKeywordInput;
-Textfield outputHeightInput;
-Textfield outputWidthInput;
+Textfield tbInput, unsplashKeywordInput, outputHeightInput, outputWidthInput;
+
+ScrollableList sizePresetList, viewportPresetList, fontSelectionList;
 
 void setup() {
     // size(1000, 1000);
-    size(1200, 800);
+    size(1200, 800, JAVA2D);
+    background(10);
     surface.setResizable(true);
 
     // size(753,1188);
@@ -80,6 +76,7 @@ void setup() {
     smooth();
 
     // set up graphics buffers
+    // postcard:383,575, a4: 598,842,a3:842,1191, Tabloid: 1225,842, Letter: 612,842
     bufferDimensions = new PVector(383, 575);
     ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
@@ -127,18 +124,23 @@ void setup() {
     imageXPosSlider = makeSlider("imageXPos", 10, 75, -ib.width / 2, ib.width / 2, 0);
     imageYPosSlider = makeSlider("imageYPos", 10, 90, -ib.height / 2, ib.height / 2, 0);
     imageScaleSlider = makeSlider("imageScale", 10, 105, 0, 2, 1);
-    yellowLayerToleranceSlider = makeSlider("yellowLayerTolerance", 10, 30, -5, 5, 0);
-    magentaLayerToleranceSlider = makeSlider("magentaLayerTolerance", 10, 45, -5, 5, 0);
-    cyanLayerToleranceSlider = makeSlider("cyanLayerTolerance", 10, 60, -5, 5, 0);
-    blackLayerToleranceSlider = makeSlider("blackLayerTolerance", 10, 75, -5, 5, 0);
+    yellowLayerLowToleranceSlider = makeSlider("yellowLayerLowTolerance", 10, 30, -5, 5, 0);
+    yellowLayerHighToleranceSlider = makeSlider("yellowLayerHighTolerance", 10, 45, -5, 5, 0);
+    magentaLayerLowToleranceSlider = makeSlider("magentaLayerLowTolerance", 10, 60, -5, 5, 0);
+    magentaLayerHighToleranceSlider = makeSlider("magentaLayerHighTolerance", 10, 75, -5, 5, 0);
+    cyanLayerLowToleranceSlider = makeSlider("cyanLayerLowTolerance", 10, 90, -5, 5, 0);
+    cyanLayerHighToleranceSlider = makeSlider("cyanLayerHighTolerance", 10, 105, -5, 5, 0);
+    blackLayerLowToleranceSlider = makeSlider("blackLayerLowTolerance", 10, 120, -5, 5, 0);
+    blackLayerHighToleranceSlider = makeSlider("blackLayerHighTolerance", 10, 135, -5, 5, 0);
+    toleranceRangeSlider = makeSlider("toleranceRange", 10, 150, 0, 10, 2);
     tSizeSlider = makeSlider("tSize", 10, 75, 0, 500, 70);
     textXPosSlider = makeSlider("textXPos", 10, 30, -tb.width / 2, tb.width / 2, 0);
     textYPosSlider = makeSlider("textYPos", 10, 45, -tb.height / 2, tb.height / 2, 0 - tSize / 2);
     textRotationSlider = makeSlider("textRotation", 10, 60, -TWO_PI, TWO_PI, 0);
     leadingSlider = makeSlider("leading", 10, 90, -100, 100, 0);
-    marginSlider = makeSlider("margin", 10, 105, -20, 100, 30);
+    marginSlider = makeSlider("margin", 10, 165, 5, 100, 30);
     spacingSlider = cp5.addSlider("lineSpacing")
-        .setPosition(10, 90)
+        .setPosition(10, 180)
         .setWidth(100)
         .setRange(1, 5)
         .setValue(2)
@@ -151,17 +153,17 @@ void setup() {
         .hide();
     layer2CP = cp5.addColorWheel("layer2ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(255, 0, 255))
+        .setRGB(color(255, 0, 255,.9))
         .moveTo("Output")
         .hide();
     layer3CP = cp5.addColorWheel("layer3ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(0, 255, 255))
+        .setRGB(color(0, 255, 255,.9))
         .moveTo("Output")
         .hide();
     layer4CP = cp5.addColorWheel("layer4ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(0, 0, 0))
+        .setRGB(color(0, 0, 0,.9))
         .moveTo("Output")
         .hide();
     cp5.addButton("layer1")
@@ -186,7 +188,7 @@ void setup() {
         .setSize(70, 20);
     cp5.addButton("averageTolerance")
         .setValue(0)
-        .setPosition(30, 130)
+        .setPosition(30, 210)
         .setSize(100
         , 20);
     unsplashKeywordInput = cp5.addTextfield("unsplashKeyword")
@@ -201,7 +203,7 @@ void setup() {
         .setFocus(true)
         .setAutoClear(false)
         .setColor(color(255, 0, 0))
-        .setText("test");
+        .setText("");
     outputWidthInput = cp5.addTextfield("outputWidth")
         .setPosition(10, 30)
         .setSize(100, 20)
@@ -209,6 +211,7 @@ void setup() {
         .setAutoClear(false)
         .setColor(color(255, 0, 0))
         .setText("383");
+        outputWidthInput.setText("383");
     outputHeightInput = cp5.addTextfield("outputHeight")
         .setPosition(10, 65)
         .setSize(100, 20)
@@ -233,10 +236,47 @@ void setup() {
         .setValue(0)
         .setPosition(10, 100)
         .setSize(80, 20);
+    sizePresetList = cp5.addScrollableList("sizePreset")
+        .setPosition(100, 100)
+        .setSize(100, 100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .setType(ScrollableList.DROPDOWN);
+        sizePresetList.close();
+        sizePresetList.addItem("Postcard",0);
+        sizePresetList.addItem("a4",1);
+        sizePresetList.addItem("a3",2);
+        sizePresetList.addItem("Tabloid",3);
+        sizePresetList.addItem("Letter",4);
+        sizePresetList.addItem("Instagram",5);
+    viewportPresetList = cp5.addScrollableList("viewportPreset")
+        .setPosition(100, 100)
+        .setSize(100, 100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .setType(ScrollableList.DROPDOWN);
+        viewportPresetList.close();
+        viewportPresetList.addItem("Split View",0);
+        viewportPresetList.addItem("Output View",1);
+        viewportPresetList.addItem("Image View",2);
+    fontSelectionList = cp5.addScrollableList("fontSelection")
+        .setPosition(200, 70)
+        .setSize(100, 100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .setType(ScrollableList.DROPDOWN);
+        fontSelectionList.close();
+        fontSelectionList.addItem("Basteleur",0);
+        fontSelectionList.addItem("Format 1452",1);
+        fontSelectionList.addItem("Hngl",2);
+        fontSelectionList.addItem("IBM Plex Mono",3);
+        fontSelectionList.addItem("Karrik",4);
 
 
     // group controllers into tabs
     cp5.getController("viewportScaler").moveTo("Viewport");
+    cp5.getController("viewportPreset").moveTo("Viewport");
+
 
     cp5.getController("unsplashKeyword").moveTo("default");
     cp5.getController("newImage").moveTo("default");
@@ -250,11 +290,17 @@ void setup() {
     cp5.getController("textRotation").moveTo("Frame 2");
     cp5.getController("tSize").moveTo("Frame 2");
     cp5.getController("leading").moveTo("Frame 2");
+    cp5.getController("fontSelection").moveTo("Frame 2");
 
-    cp5.getController("yellowLayerTolerance").moveTo("Output");
-    cp5.getController("magentaLayerTolerance").moveTo("Output");
-    cp5.getController("cyanLayerTolerance").moveTo("Output");
-    cp5.getController("blackLayerTolerance").moveTo("Output");
+    cp5.getController("yellowLayerLowTolerance").moveTo("Output");
+    cp5.getController("magentaLayerLowTolerance").moveTo("Output");
+    cp5.getController("cyanLayerLowTolerance").moveTo("Output");
+    cp5.getController("blackLayerLowTolerance").moveTo("Output");
+    cp5.getController("yellowLayerHighTolerance").moveTo("Output");
+    cp5.getController("magentaLayerHighTolerance").moveTo("Output");
+    cp5.getController("cyanLayerHighTolerance").moveTo("Output");
+    cp5.getController("blackLayerHighTolerance").moveTo("Output");
+    cp5.getController("toleranceRange").moveTo("Output");
     cp5.getController("lineSpacing").moveTo("Output");
     cp5.getController("layer1").moveTo("Output");
     cp5.getController("layer2").moveTo("Output");
@@ -269,30 +315,31 @@ void setup() {
     cp5.getController("outputWidth").moveTo("Export");
     cp5.getController("outputHeight").moveTo("Export");
     cp5.getController("updateBufferSize").moveTo("Export");
+    cp5.getController("sizePreset").moveTo("Export");
 
     // Initial noiseseed settings, Get image for frame 1 on startup
-    getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
+    // getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
     int randNoiseSeed = int(random(5000));
     noiseSeed(randNoiseSeed);
 
     // NoiseField setup
-    nfCyan = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfMagenta = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfYellow = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfBlack = new NoiseField(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan = new NoiseField(fi,ib,tb,cyanLayerLowTolerance,cyanLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta = new NoiseField(fi,ib,tb,magentaLayerLowTolerance,cyanLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow = new NoiseField(fi,ib,tb,yellowLayerLowTolerance,yellowLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack = new NoiseField(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
 
     
 }
 
 void draw() {
     // frame one, image layer
-    background(0);
+    background(20);
     ib.beginDraw();
     ib.push();
     ib.translate(ib.width / 2, ib.height / 2);
     ib.scale(imageScale, imageScale);
     ib.imageMode(CENTER);
-    ib.background(10);
+    ib.background(12);
     ib.image(imageForBuffer, imageXPos, imageYPos);
     ib.pop();
     ib.endDraw();
@@ -319,22 +366,21 @@ void draw() {
     fi.background(255);
         if(frameCount<2){
         averageTolerance();
-    }
-
+        }
     nfYellow.loadPixelsForBuffers();
-    nfYellow.update(fi,ib,tb,yellowLayerTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow.update(fi,ib,tb,yellowLayerLowTolerance,yellowLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfYellow.drawGreenLayer();
     
     nfMagenta.loadPixelsForBuffers();
-    nfMagenta.update(fi,ib,tb,magentaLayerTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta.update(fi,ib,tb,magentaLayerLowTolerance,magentaLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfMagenta.drawRedLayer();
     
     nfCyan.loadPixelsForBuffers();
-    nfCyan.update(fi,ib,tb,cyanLayerTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan.update(fi,ib,tb,cyanLayerLowTolerance,cyanLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfCyan.drawBlueLayer();
     
     nfBlack.loadPixelsForBuffers();
-    nfBlack.update(fi,ib,tb,blackLayerTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack.update(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
     // BROKEN
     // addLabel(fi);
@@ -347,12 +393,24 @@ void draw() {
 }
 
 void showBuffers() {
-    push();
-    imageMode(CENTER);
-    image(ib, width / 4, height / 2, ib.width * viewportScaler, ib.height * viewportScaler);
-    image(tb, width / 2, height / 2, tb.width * viewportScaler, tb.height * viewportScaler);
-    image(fi, width - width / 4, height / 2, fi.width * viewportScaler, fi.height * viewportScaler);
-    pop();
+    if (splitView) {
+        push();
+        imageMode(CENTER);
+        image(ib, width / 4, height / 2, ib.width * viewportScaler, ib.height * viewportScaler);
+        image(tb, width / 2, height / 2, tb.width * viewportScaler, tb.height * viewportScaler);
+        image(fi, width - width / 4, height / 2, fi.width * viewportScaler, fi.height * viewportScaler);
+        pop();
+    }else if (imageView) {
+        push();
+        imageMode(CENTER);
+        image(ib, width*.55, height / 2, ib.width * viewportScaler, ib.height * viewportScaler);
+        pop();
+    }else if (outputView) {
+        push();
+        imageMode(CENTER);
+        image(fi, width*.55, height / 2, fi.width * viewportScaler, fi.height * viewportScaler);
+        pop();
+    }
 }
 
 // a function to make new sliders because I do that alot, thank you dgrantham
@@ -372,8 +430,6 @@ void getImage(String k) {
     cp5.getController("imageXPos").setValue(0);
     cp5.getController("imageYPos").setValue(0);
     cp5.getController("imageScale").setValue(1);
-
-    if (frameCount > 0)
         println("Loading Image...");
     // imageForBuffer = loadImage("https://source.unsplash.com/" + imageDimensionWidth + "x" + imageDimensionHeight + "/?" + k, "jpg");
     imageForBuffer = loadImage("https://source.unsplash.com/random/?" + k, "jpg");
@@ -391,9 +447,9 @@ void getImage(String k) {
 
 // --------------------------------------button events begin
 void newImage() {
-    if (frameCount > 0) {
+
         getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
-    }
+
 }
 
 void saveImage() {
@@ -536,10 +592,14 @@ void averageTolerance(){
     float averageThresholdMagenta =  map(r,0,255,-5,5);
     float averageThresholdYellow =  map(g,0,255,-5,5);
     float averageThresholdBlack =  map(bla,0,255,-5,5);
-    cyanLayerToleranceSlider.setValue(averageThresholdCyan);
-    yellowLayerToleranceSlider.setValue(averageThresholdYellow);
-    magentaLayerToleranceSlider.setValue(averageThresholdMagenta);
-    blackLayerToleranceSlider.setValue(averageThresholdBlack);
+    cyanLayerLowToleranceSlider.setValue(averageThresholdCyan-toleranceRange);
+    yellowLayerLowToleranceSlider.setValue(averageThresholdYellow-toleranceRange);
+    magentaLayerLowToleranceSlider.setValue(averageThresholdMagenta-toleranceRange);
+    blackLayerLowToleranceSlider.setValue(averageThresholdBlack-toleranceRange);
+    cyanLayerHighToleranceSlider.setValue(averageThresholdCyan+toleranceRange);
+    yellowLayerHighToleranceSlider.setValue(averageThresholdYellow+toleranceRange);
+    magentaLayerHighToleranceSlider.setValue(averageThresholdMagenta+toleranceRange);
+    blackLayerHighToleranceSlider.setValue(averageThresholdBlack+toleranceRange);
     }
 }
 
@@ -548,6 +608,7 @@ void randomColors() {
         layer1CP.setRGB(color(int(random(255)), int(random(255)), int(random(255))));
         layer2CP.setRGB(color(int(random(255)), int(random(255)), int(random(255))));
         layer3CP.setRGB(color(int(random(255)), int(random(255)), int(random(255))));
+        layer4CP.setRGB(color(int(random(255)), int(random(255)), int(random(255))));
 
     }
 }
@@ -573,10 +634,10 @@ void updateBufferSize() {
 }
 
 void fitImage(){
-    if (frameCount > 0) {
-    cp5.getController("imageXPos").setValue(0);
-    cp5.getController("imageYPos").setValue(0);
-    cp5.getController("imageScale").setValue(1);
+    if (frameCount>0) {
+        cp5.getController("imageXPos").setValue(0);
+        cp5.getController("imageYPos").setValue(0);
+        cp5.getController("imageScale").setValue(1);    
     println("Resizing Image...");
         if(imageForBuffer.height>imageForBuffer.width){
         imageForBuffer.resize(ib.width, 0);
@@ -621,7 +682,9 @@ void keyPressed() {
 // SVG record actions
 void startRecord() {
     if (record) {
+        fi.blendMode(SUBTRACT);
         fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y), SVG, "Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg");
+
     }
 }
 
@@ -657,4 +720,60 @@ void dropEvent(DropEvent theDropEvent) {
         }
     println("Done!");
 imageForBuffer.loadPixels();
+}
+
+
+void sizePreset(int n){
+    if (frameCount>0) {
+            if(n== 0){
+        cp5.get(Textfield.class, "outputWidth").setText("383");
+        cp5.get(Textfield.class, "outputHeight").setText("575");
+    }else if (n== 1) {
+        cp5.get(Textfield.class, "outputWidth").setText("598");
+        cp5.get(Textfield.class, "outputHeight").setText("842");
+    }else if (n== 2) {
+        cp5.get(Textfield.class, "outputWidth").setText("842");
+        cp5.get(Textfield.class, "outputHeight").setText("1191");
+    }else if (n== 3) {
+        cp5.get(Textfield.class, "outputWidth").setText("842");
+        cp5.get(Textfield.class, "outputHeight").setText("1225");
+    }else if (n== 4) {
+        cp5.get(Textfield.class, "outputWidth").setText("612");
+        cp5.get(Textfield.class, "outputHeight").setText("842");
+    }else if (n== 5) {
+        cp5.get(Textfield.class, "outputWidth").setText("1080");
+        cp5.get(Textfield.class, "outputHeight").setText("1080");
+    }
+    updateBufferSize();
+    }
+}
+
+void viewportPreset(int n){
+    if(n == 0){
+        splitView = true;
+        imageView = false;
+        outputView = false;
+    }else if(n == 1){
+        splitView = false;
+        imageView = false;
+        outputView = true;
+    }else if(n == 2){
+        splitView = false;
+        imageView = true;
+        outputView = false;
+    }
+}
+
+void fontSelection(int n){
+    if(n == 0){
+    font = createFont("fonts/Basteleur-Bold.ttf", 50);
+    }else if(n == 1){
+    font = createFont("fonts/Format_1452.otf", 50);
+    }else if(n == 2){
+    font = createFont("fonts/hngl.otf", 50);
+    }else if(n == 3){
+    font = createFont("fonts/IBMPlexMono-Bold.ttf", 50);
+    }else if(n == 4){
+    font = createFont("fonts/Karrik-Regular.ttf", 50);
+    }
 }

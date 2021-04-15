@@ -3,7 +3,8 @@ class NoiseField {
     PGraphics outputElement;
     PGraphics imageLayerElement;
     PGraphics textLayerElement;
-    float layerTolerance;
+    float layerLowTolerance;
+    float layerHighTolerance;
     float noiseScalar;
     color strokeColor;
     int randNoiseSeed;
@@ -13,11 +14,12 @@ class NoiseField {
 
 
 
-  NoiseField (PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics textLayerElement_, float layerTolerance_, float noiseScalar_, color strokeColor_, int randNoiseSeed_, int margin_, float lineSpacing_,float displacmentFactor_) {  
+  NoiseField (PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics textLayerElement_, float layerLowTolerance_,float layerHighTolerance_, float noiseScalar_, color strokeColor_, int randNoiseSeed_, int margin_, float lineSpacing_,float displacmentFactor_) {  
     outputElement=outputElement_;
     imageLayerElement=imageLayerElement_;
     textLayerElement= textLayerElement_;
-    layerTolerance=layerTolerance_;
+    layerLowTolerance=layerLowTolerance_;
+    layerHighTolerance=layerHighTolerance_;
     noiseScalar=noiseScalar_;
     strokeColor = strokeColor_;
     randNoiseSeed = randNoiseSeed_;
@@ -26,11 +28,12 @@ class NoiseField {
     displacmentFactor = displacmentFactor_;
   } 
 
-void update(PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics textLayerElement_, float layerTolerance_, float noiseScalar_, color strokeColor_, int randNoiseSeed_, int margin_, float lineSpacing_,float displacmentFactor_){
+void update(PGraphics outputElement_,PGraphics imageLayerElement_,PGraphics textLayerElement_, float layerLowTolerance_,float layerHighTolerance_, float noiseScalar_, color strokeColor_, int randNoiseSeed_, int margin_, float lineSpacing_,float displacmentFactor_){
     outputElement=outputElement_;
     imageLayerElement=imageLayerElement_;
     textLayerElement= textLayerElement_;
-    layerTolerance=layerTolerance_;
+    layerLowTolerance=layerLowTolerance_;
+    layerHighTolerance=layerHighTolerance_;
     noiseScalar=noiseScalar_;
     strokeColor = strokeColor_;
     randNoiseSeed = randNoiseSeed_;
@@ -60,7 +63,7 @@ float getAverageBrightness() {
 }
 
 void drawRedLayer() {
-    // outputElement_.blendMode(BLEND);
+    // outputElement.blendMode(SUBTRACT);
     outputElement.noFill();
     outputElement.push();
     outputElement.strokeWeight(.7);
@@ -76,7 +79,7 @@ void drawRedLayer() {
             float r = map(red(imageLayerElement.pixels[imageLayerIndex]),0,255,-5,5);
             color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
-            if (r < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+            if (r < layerHighTolerance && r > layerLowTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + r);
             } else {
                 outputElement.endShape();
@@ -105,7 +108,7 @@ void drawBlueLayer() {
             float b = map(blue(imageLayerElement.pixels[imageLayerIndex]),0,255,-5,5);
             color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
-            if (b < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+            if (b < layerHighTolerance && b > layerLowTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + b);
             } else {
                 outputElement.endShape();
@@ -134,7 +137,7 @@ void drawGreenLayer() {
             float g = map(green(imageLayerElement.pixels[imageLayerIndex]),0,255,-5,5);
             color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
-            if (g < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+            if (g < layerHighTolerance && g > layerLowTolerance &&  bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + g);
             } else {
                 outputElement.endShape();
@@ -164,7 +167,7 @@ void drawBlackLayer() {
             float blaBrightness = map(brightness(bla),0,255,-5,5);
             color c2 = color(red(textLayerElement.pixels[textLayerIndex]),green(textLayerElement.pixels[textLayerIndex]),blue(textLayerElement.pixels[textLayerIndex]));
             float bri = brightness(c2);
-            if (blaBrightness < layerTolerance && bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
+            if (blaBrightness < layerHighTolerance && blaBrightness > layerLowTolerance &&  bri > 0 && x + noiseVar < outputElement.width - margin && x + noiseVar > margin && y + noiseVar < outputElement.height - margin && y + noiseVar > margin) {
                 outputElement.curveVertex(x + noiseVar, y + noiseVar + blaBrightness);
             } else {
                 outputElement.endShape();
