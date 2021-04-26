@@ -63,7 +63,7 @@ float getAverageBrightness() {
 }
 
 void drawRedLayer() {
-    // outputElement.blendMode(SUBTRACT);
+     outputElement.blendMode(SUBTRACT);
     outputElement.noFill();
     outputElement.push();
     outputElement.strokeWeight(.7);
