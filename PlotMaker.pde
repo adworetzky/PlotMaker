@@ -78,12 +78,7 @@ void setup() {
     background(10);
     surface.setResizable(true);
 
-    // size(753,1188);
-    // font = createFont("fonts/IBMPlexMono-Bold.ttf", 50);
-    // font = createFont("fonts/hngl.otf", 50);
     font = createFont("fonts/Basteleur-Bold.ttf", 50);
-    // font = createFont("fonts/Karrik-Regular.ttf", 50);
-    // font = createFont("fonts/Format_1452.otf", 50);
     smooth();
 
     // set up graphics buffers
@@ -97,7 +92,7 @@ void setup() {
     // Drag and Drop Setup
     drop = new SDrop(this);
 
-    // Hershey Font label set up
+    // Hershey Font label set up ---------------------For DG: Hershey font setup, this part I think works fine unless I have to call the class somehow "onto" the fi buffer
     hf = new HersheyFont(this, "futural.jhf");
     hf.textSize(5);
 
@@ -343,7 +338,7 @@ void setup() {
 }
 
 void draw() {
-    // frame one, image layer
+    // frame 1, image layer
     background(20);
     ib.beginDraw();
     ib.push();
@@ -393,7 +388,8 @@ void draw() {
     nfBlack.loadPixelsForBuffers();
     nfBlack.update(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
-    // BROKEN
+    
+    // BROKEN---------------------For DG: This is where I want to call the 'addLabel' function and have it draw to the fi buffer
     // addLabel(fi);
     fi.endDraw();
     if (record) {
@@ -458,9 +454,7 @@ void getImage(String k) {
 
 // --------------------------------------button events begin
 void newImage() {
-
         getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
-
 }
 
 void saveImage() {
@@ -469,6 +463,7 @@ void saveImage() {
     }
 }
 
+// color picker on/off buttons
 void layer1() {
     if (frameCount > 0) {
         if (!layer1On) {
@@ -665,7 +660,7 @@ void fitImage(){
 // --------------------------------------button events end
 
 
-// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY
+// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY---------------------For DG: I cant seem to get the hershey library to draw labels to the fi buffer. I feel like it's a syntax thing but there is something I'm missing. It worked before I started using offscreen buffers to organize the sketch.
 void addLabel(PGraphics element_) {
     element_.pushMatrix();
     element_.stroke(.1);
@@ -678,16 +673,6 @@ void addLabel(PGraphics element_) {
     element_.stroke(.1);
     hf.text(month() + "/" + day() + "/" + year() + " - " + hour() + ":" + minute() + ":" + second(), 10, element_.height - 10);
     element_.popMatrix();
-
-    shape(hf.getShape("PROCESSING"));
-}
-
-void keyPressed() {
-    if (key == 'q') {
-        closeRecord();
-        fi.dispose();
-        exit();
-    }
 }
 
 // SVG record actions
@@ -708,6 +693,7 @@ void closeRecord() {
     }
 }
 
+// drag and drop function to allow the user to drop and image in
 void dropEvent(DropEvent theDropEvent) {
   println("");
   println("isFile()\t"+theDropEvent.isFile());
