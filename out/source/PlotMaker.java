@@ -37,11 +37,16 @@ NoiseField nfYellow;
 NoiseField nfBlack;
 
 //  TODO
-// change layer color-DONE
-// drag and drop img- DONE
-// change size of export(done) with presets for different papers(not done)
-// Font Selection (have to figure out drop down menus in cp5)
+// change layer color (DONE)
+// drag and drop img (DONE)
+// change size of export(done) with presets for different papers(DONE)
+// Font Selection (DONE)
 // Dual Images, like double exposure (stretch but cool)
+// toggles to turn on and off layers (NOT DONE)
+// Toggle to switch back to blue, red, and black layer (NOT DONE)
+// Random word input for text layer (NOT DONE)
+// rotate image button (NOT DONE)
+// switch width and height button(NOT DONE)
 
 PGraphics ib;
 PGraphics tb;
@@ -174,17 +179,17 @@ public void setup() {
         .hide();
     layer2CP = cp5.addColorWheel("layer2ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(255, 0, 255,.9f))
+        .setRGB(color(255, 0, 255,.8f))
         .moveTo("Output")
         .hide();
     layer3CP = cp5.addColorWheel("layer3ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(0, 255, 255,.9f))
+        .setRGB(color(0, 255, 255,.8f))
         .moveTo("Output")
         .hide();
     layer4CP = cp5.addColorWheel("layer4ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(0, 0, 0,.9f))
+        .setRGB(color(0, 0, 0,.8f))
         .moveTo("Output")
         .hide();
     cp5.addButton("layer1")
@@ -620,7 +625,7 @@ public void averageTolerance(){
     cyanLayerHighToleranceSlider.setValue(averageThresholdCyan+toleranceRange);
     yellowLayerHighToleranceSlider.setValue(averageThresholdYellow+toleranceRange);
     magentaLayerHighToleranceSlider.setValue(averageThresholdMagenta+toleranceRange);
-    blackLayerHighToleranceSlider.setValue(averageThresholdBlack+toleranceRange);
+    blackLayerHighToleranceSlider.setValue(averageThresholdBlack+toleranceRange*.5f);
     }
 }
 
@@ -863,7 +868,7 @@ public float getAverageBrightness() {
 }
 
 public void drawRedLayer() {
-    // outputElement.blendMode(SUBTRACT);
+    //  outputElement.blendMode(SUBTRACT);
     outputElement.noFill();
     outputElement.push();
     outputElement.strokeWeight(.7f);
@@ -892,7 +897,7 @@ public void drawRedLayer() {
 }
 
 public void drawBlueLayer() {
-    // outputElement_.blendMode(BLEND);
+    outputElement.blendMode(BLEND);
     outputElement.noFill();
     outputElement.push();
     outputElement.strokeWeight(.7f);

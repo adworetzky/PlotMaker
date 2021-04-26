@@ -2,6 +2,8 @@
 // A program to help make line draw adaptations of images and text with added noise for variation
 // Includes color options, export sizing, different font choices, and some other things!
 // Use, add to, break, and fix however you would like. The only thing I ask is that you make cool stuff
+// Before use: must install Drop, HersheyFont, Control.P5, and Processing.SVG. All are available in the native processing libraries tool
+
 
 import processing.svg.*;
 import de.ixdhof.hershey.*;
@@ -16,11 +18,20 @@ NoiseField nfYellow;
 NoiseField nfBlack;
 
 //  TODO
-// change layer color-DONE
-// drag and drop img- DONE
-// change size of export(done) with presets for different papers(not done)
-// Font Selection (have to figure out drop down menus in cp5)
+// change layer color (DONE)
+// drag and drop img (DONE)
+// change size of export(done) with presets for different papers(DONE)
+// Font Selection (DONE)
 // Dual Images, like double exposure (stretch but cool)
+// image filter and simple adjustments
+// toggles to turn on and off layers (NOT DONE)
+// Toggle to switch back to blue, red, and black layer (NOT DONE)
+// Random word input for text layer (NOT DONE)
+// rotate image button (NOT DONE)
+// switch width and height button(NOT DONE)
+// if no image data, dont draw (NOT DONE)
+// Image resize Error, doesnt always work
+// lable in margin wont draw to fi buffer
 
 PGraphics ib;
 PGraphics tb;
@@ -153,17 +164,17 @@ void setup() {
         .hide();
     layer2CP = cp5.addColorWheel("layer2ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(255, 0, 255,.9))
+        .setRGB(color(255, 0, 255,.8))
         .moveTo("Output")
         .hide();
     layer3CP = cp5.addColorWheel("layer3ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(0, 255, 255,.9))
+        .setRGB(color(0, 255, 255,.8))
         .moveTo("Output")
         .hide();
     layer4CP = cp5.addColorWheel("layer4ColorPicker")
         .setPosition(290, 20)
-        .setRGB(color(0, 0, 0,.9))
+        .setRGB(color(0, 0, 0,.8))
         .moveTo("Output")
         .hide();
     cp5.addButton("layer1")
@@ -599,7 +610,7 @@ void averageTolerance(){
     cyanLayerHighToleranceSlider.setValue(averageThresholdCyan+toleranceRange);
     yellowLayerHighToleranceSlider.setValue(averageThresholdYellow+toleranceRange);
     magentaLayerHighToleranceSlider.setValue(averageThresholdMagenta+toleranceRange);
-    blackLayerHighToleranceSlider.setValue(averageThresholdBlack+toleranceRange);
+    blackLayerHighToleranceSlider.setValue(averageThresholdBlack+toleranceRange*.5);
     }
 }
 
