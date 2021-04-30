@@ -24,6 +24,18 @@ public class PlotMaker extends PApplet {
 // Includes color options, export sizing, different font choices, and some other things!
 // Use, add to, break, and fix however you would like. The only thing I ask is that you make cool stuff
 
+//Instructions before using:
+//Must install Drop, HersheyFont, Control.P5, and Processing.SVG. All are available in the native processing libraries tool
+
+
+// The random images pulled from the web are all from unsplash.com, the rights to said photos are free for commercial and non-commercial use. Policy can be found here:https://unsplash.com/license
+
+// Copyright 2021 Adam Dworetzky
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 
 
 
@@ -42,11 +54,15 @@ NoiseField nfBlack;
 // change size of export(done) with presets for different papers(DONE)
 // Font Selection (DONE)
 // Dual Images, like double exposure (stretch but cool)
+// image filter and simple adjustments
 // toggles to turn on and off layers (NOT DONE)
 // Toggle to switch back to blue, red, and black layer (NOT DONE)
 // Random word input for text layer (NOT DONE)
 // rotate image button (NOT DONE)
 // switch width and height button(NOT DONE)
+// if no image data, dont draw (NOT DONE)
+// Image resize Error, doesnt always work
+// lable in margin wont draw to fi buffer
 
 PGraphics ib;
 PGraphics tb;
@@ -93,12 +109,7 @@ public void setup() {
     background(10);
     surface.setResizable(true);
 
-    // size(753,1188);
-    // font = createFont("fonts/IBMPlexMono-Bold.ttf", 50);
-    // font = createFont("fonts/hngl.otf", 50);
     font = createFont("fonts/Basteleur-Bold.ttf", 50);
-    // font = createFont("fonts/Karrik-Regular.ttf", 50);
-    // font = createFont("fonts/Format_1452.otf", 50);
     
 
     // set up graphics buffers
@@ -112,7 +123,7 @@ public void setup() {
     // Drag and Drop Setup
     drop = new SDrop(this);
 
-    // Hershey Font label set up
+    // Hershey Font label set up ---------------------For DG: Hershey font setup, this part I think works fine unless I have to call the class somehow "onto" the fi buffer
     hf = new HersheyFont(this, "futural.jhf");
     hf.textSize(5);
 
@@ -358,7 +369,7 @@ public void setup() {
 }
 
 public void draw() {
-    // frame one, image layer
+    // frame 1, image layer
     background(20);
     ib.beginDraw();
     ib.push();
@@ -375,7 +386,7 @@ public void draw() {
     tb.background(255);
     tb.push();
     tb.textFont(font, tSize);
-    tb.textAlign(CENTER);
+    tb.textAlign(LEFT);
     tb.textLeading(tSize + leading);
     tb.fill(0);
     tb.translate(tb.width / 2 + textXPos, tb.height / 2 + textYPos);
@@ -408,7 +419,8 @@ public void draw() {
     nfBlack.loadPixelsForBuffers();
     nfBlack.update(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01f,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
-    // BROKEN
+    
+    // BROKEN---------------------For DG: This is where I want to call the 'addLabel' function and have it draw to the fi buffer
     // addLabel(fi);
     fi.endDraw();
     if (record) {
@@ -473,9 +485,7 @@ public void getImage(String k) {
 
 // --------------------------------------button events begin
 public void newImage() {
-
         getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
-
 }
 
 public void saveImage() {
@@ -484,6 +494,7 @@ public void saveImage() {
     }
 }
 
+// color picker on/off buttons
 public void layer1() {
     if (frameCount > 0) {
         if (!layer1On) {
@@ -680,7 +691,7 @@ public void fitImage(){
 // --------------------------------------button events end
 
 
-// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY
+// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY---------------------For DG: I cant seem to get the hershey library to draw labels to the fi buffer. I feel like it's a syntax thing but there is something I'm missing. It worked before I started using offscreen buffers to organize the sketch.
 public void addLabel(PGraphics element_) {
     element_.pushMatrix();
     element_.stroke(.1f);
@@ -693,16 +704,6 @@ public void addLabel(PGraphics element_) {
     element_.stroke(.1f);
     hf.text(month() + "/" + day() + "/" + year() + " - " + hour() + ":" + minute() + ":" + second(), 10, element_.height - 10);
     element_.popMatrix();
-
-    shape(hf.getShape("PROCESSING"));
-}
-
-public void keyPressed() {
-    if (key == 'q') {
-        closeRecord();
-        fi.dispose();
-        exit();
-    }
 }
 
 // SVG record actions
@@ -723,6 +724,7 @@ public void closeRecord() {
     }
 }
 
+// drag and drop function to allow the user to drop and image in
 public void dropEvent(DropEvent theDropEvent) {
   println("");
   println("isFile()\t"+theDropEvent.isFile());
@@ -985,7 +987,7 @@ public void drawBlackLayer() {
 }
 
 }
-  public void settings() {  size(1200, 800, JAVA2D);  smooth(); }
+  public void settings() {  size(1440, 880, JAVA2D);  smooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "PlotMaker" };
     if (passedArgs != null) {

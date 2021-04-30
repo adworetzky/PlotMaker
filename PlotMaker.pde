@@ -84,7 +84,7 @@ ScrollableList sizePresetList, viewportPresetList, fontSelectionList;
 
 void setup() {
     // size(1000, 1000);
-    size(1200, 800, JAVA2D);
+    size(1440, 880, JAVA2D);
     background(10);
     surface.setResizable(true);
 
@@ -365,7 +365,7 @@ void draw() {
     tb.background(255);
     tb.push();
     tb.textFont(font, tSize);
-    tb.textAlign(CENTER);
+    tb.textAlign(LEFT);
     tb.textLeading(tSize + leading);
     tb.fill(0);
     tb.translate(tb.width / 2 + textXPos, tb.height / 2 + textYPos);
