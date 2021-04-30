@@ -1,5 +1,7 @@
 # PlotMaker MKII
 
+![Alt text](screenshots\Plotmaker.png "PlotMaker")
+
 PlotMaker MK2 is a processing application I created that allows the user to take advantage of the generative power of their computer. The application reads image data and displaces a predetermined set of lines to “draw” the image onto 4 separate CMYK layers. But the real power comes in the abstraction of the original form through this process.
 
 Images can be sourced from Unsplash.com directly or the user can drag and drop their own into the window. With variable resizing of the output, any specific sizing can be generated using just a few clicks.
@@ -18,8 +20,14 @@ The sketch needs the processing SVG library, HersheyText library, ControlP5 libr
 
 ## Usage
 ### Frame 1
-![Alt text](screenshots/frame1ui.png "Frame 1")
+![Alt text](screenshots\frame1ui.png "Frame 1")
+
 The Frame 1 UI controls the image used to displace the lines in the final output
+
+![Alt text](screenshots\frame2ui.png "Frame 2")
+![Alt text](screenshots\outputui.png "Output")
+![Alt text](screenshots\viewportui.png "Viewport")
+![Alt text](screenshots\exportui.png "Export")
 
 
 ## License
