@@ -84,7 +84,7 @@ ScrollableList sizePresetList, viewportPresetList, fontSelectionList;
 
 void setup() {
     // size(1000, 1000);
-    size(1440, 880, JAVA2D);
+    size(1440, 880,JAVA2D);
     background(10);
     surface.setResizable(true);
 
@@ -97,12 +97,12 @@ void setup() {
     ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
     fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    fi.smooth(4);
+    fi.smooth();
 
     // Drag and Drop Setup
     drop = new SDrop(this);
 
-    // Hershey Font label set up ---------------------For DG: Hershey font setup, this part I think works fine unless I have to call the class somehow "onto" the fi buffer
+    // Hershey Font label set up
     hf = new HersheyFont(this, "futural.jhf");
     hf.textSize(5);
 
@@ -399,7 +399,7 @@ void draw() {
     nfBlack.update(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
     
-    // BROKEN---------------------For DG: This is where I want to call the 'addLabel' function and have it draw to the fi buffer
+    // BROKEN
     // addLabel(fi);
     fi.endDraw();
     if (record) {
@@ -670,7 +670,7 @@ void fitImage(){
 // --------------------------------------button events end
 
 
-// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY---------------------For DG: I cant seem to get the hershey library to draw labels to the fi buffer. I feel like it's a syntax thing but there is something I'm missing. It worked before I started using offscreen buffers to organize the sketch.
+// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY
 void addLabel(PGraphics element_) {
     element_.pushMatrix();
     element_.stroke(.1);
