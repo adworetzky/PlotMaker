@@ -24,10 +24,26 @@ The sketch needs the processing SVG library, HersheyText library, ControlP5 libr
 
 The Frame 1 UI controls the image used to displace the lines in the final output
 
+### Frame 2
 ![Alt text](screenshots/frame2ui.png "Frame 2")
+
+The Frame 2 UI controls the the text added to create a knockout effect in the final output
+
+### Output
 ![Alt text](screenshots/outputui.png "Output")
+
+The output UI controls the parameters on which the lines drawn to the final image operate.
+
+### Viewport
 ![Alt text](screenshots/viewportui.png "Viewport")
+
+The viewport section allows you to changes the size and scope of the panels found in the window
+
+### Export
 ![Alt text](screenshots/exportui.png "Export")
+
+This control the size of the image that is rendered out
+
 
 
 ## License
