@@ -1,5 +1,5 @@
 // PlotMaker mk.II By Adam Dworetzky
-// A program to help make line draw adaptations of images and text with added noise for variation
+// A program to help make line drawn adaptations of images and text with added noise for variation
 // Includes color options, export sizing, different font choices, and some other things!
 // Use, add to, break, and fix however you would like. The only thing I ask is that you make cool stuff
 
@@ -84,7 +84,7 @@ ScrollableList sizePresetList, viewportPresetList, fontSelectionList;
 
 void setup() {
     // size(1000, 1000);
-    size(1440, 880,JAVA2D);
+    size(1440, 880);
     background(10);
     surface.setResizable(true);
 
@@ -400,7 +400,8 @@ void draw() {
     nfBlack.drawBlackLayer();
     
     // BROKEN
-    // addLabel(fi);
+    // fi=addLabel(fi);
+
     fi.endDraw();
     if (record) {
         closeRecord();
@@ -451,11 +452,13 @@ void getImage(String k) {
     // imageForBuffer = loadImage("https://source.unsplash.com/" + imageDimensionWidth + "x" + imageDimensionHeight + "/?" + k, "jpg");
     imageForBuffer = loadImage("https://source.unsplash.com/random/?" + k, "jpg");
     // imageForBuffer = loadImage("Dino.jpg", "jpg");
-        if(imageForBuffer.height>imageForBuffer.width){
+    println("Image width:" +imageForBuffer.width);
+    println("Image height:"+imageForBuffer.height);
+        if(imageForBuffer.height > imageForBuffer.width){
         imageForBuffer.resize(ib.width, 0);
-        } else if(imageForBuffer.width>imageForBuffer.height){
+        } else if(imageForBuffer.width > imageForBuffer.height){
         imageForBuffer.resize(0, ib.height);    
-        }else if(imageForBuffer.width==imageForBuffer.height){
+        } else if(imageForBuffer.width == imageForBuffer.height){
         imageForBuffer.resize(0, ib.height);    
         }
     imageForBuffer.loadPixels();
@@ -670,8 +673,8 @@ void fitImage(){
 // --------------------------------------button events end
 
 
-// Label for plot export, CURRENTLY BROKEN DON'T KNOW WHY
-void addLabel(PGraphics element_) {
+// Label for plot export, CURRENTLY BROKEN
+PGraphics addLabel(PGraphics element_) {
     element_.pushMatrix();
     element_.stroke(.1);
     element_.translate(element_.width - 10, element_.height);
@@ -683,12 +686,12 @@ void addLabel(PGraphics element_) {
     element_.stroke(.1);
     hf.text(month() + "/" + day() + "/" + year() + " - " + hour() + ":" + minute() + ":" + second(), 10, element_.height - 10);
     element_.popMatrix();
+    return element_;
 }
 
 // SVG record actions
 void startRecord() {
     if (record) {
-        fi.blendMode(SUBTRACT);
         fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y), SVG, "Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg");
 
     }
