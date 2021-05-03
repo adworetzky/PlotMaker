@@ -69,11 +69,12 @@ boolean layer4On = false;
 boolean splitView = true;
 boolean imageView, outputView;
 
-color uIbackground = color(100, 0, 100);
-color uIbackgroundActive = color(0, 100, 100);
+color uIbackground = color(80,200);
+color uIbackgroundActive = color(110);
 
 Slider viewportScalerSlider, yellowLayerLowToleranceSlider, magentaLayerLowToleranceSlider, cyanLayerLowToleranceSlider,blackLayerLowToleranceSlider, yellowLayerHighToleranceSlider, magentaLayerHighToleranceSlider, cyanLayerHighToleranceSlider,blackLayerHighToleranceSlider,toleranceRangeSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider;
-float viewportScaler, yellowLayerLowTolerance, magentaLayerLowTolerance, cyanLayerLowTolerance,blackLayerLowTolerance,yellowLayerHighTolerance, magentaLayerHighTolerance, cyanLayerHighTolerance,blackLayerHighTolerance,toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale;
+Range yellowToleranceRange, magentaToleranceRange, cyanToleranceRange, blackToleranceRange;
+float viewportScaler, yellowLayerLowTolerance, magentaLayerLowTolerance, cyanLayerLowTolerance,blackLayerLowTolerance,yellowLayerHighTolerance, magentaLayerHighTolerance, cyanLayerHighTolerance,blackLayerHighTolerance,toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale, yellowTolerance, magentaTolerance, cyanTolerance, blackTolerance;
 
 ColorWheel layer1CP, layer2CP, layer3CP, layer4CP;
 float layer1ColorPicker,layer2ColorPicker,layer3ColorPicker, layer4ColorPicker;
@@ -84,7 +85,7 @@ ScrollableList sizePresetList, viewportPresetList, fontSelectionList;
 
 void setup() {
     // size(1000, 1000);
-    size(1440, 880);
+    size(1440, 880,JAVA2D);
     background(10);
     surface.setResizable(true);
 
@@ -94,9 +95,9 @@ void setup() {
     // set up graphics buffers
     // postcard:383,575, a4: 598,842,a3:842,1191, Tabloid: 1225,842, Letter: 612,842
     bufferDimensions = new PVector(383, 575);
-    ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
+    ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
+    tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
+    fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
     fi.smooth();
 
     // Drag and Drop Setup
@@ -140,15 +141,60 @@ void setup() {
     imageXPosSlider = makeSlider("imageXPos", 10, 75, -ib.width / 2, ib.width / 2, 0);
     imageYPosSlider = makeSlider("imageYPos", 10, 90, -ib.height / 2, ib.height / 2, 0);
     imageScaleSlider = makeSlider("imageScale", 10, 105, 0, 2, 1);
-    yellowLayerLowToleranceSlider = makeSlider("yellowLayerLowTolerance", 10, 30, -5, 5, 0);
-    yellowLayerHighToleranceSlider = makeSlider("yellowLayerHighTolerance", 10, 45, -5, 5, 0);
-    magentaLayerLowToleranceSlider = makeSlider("magentaLayerLowTolerance", 10, 60, -5, 5, 0);
-    magentaLayerHighToleranceSlider = makeSlider("magentaLayerHighTolerance", 10, 75, -5, 5, 0);
-    cyanLayerLowToleranceSlider = makeSlider("cyanLayerLowTolerance", 10, 90, -5, 5, 0);
-    cyanLayerHighToleranceSlider = makeSlider("cyanLayerHighTolerance", 10, 105, -5, 5, 0);
-    blackLayerLowToleranceSlider = makeSlider("blackLayerLowTolerance", 10, 120, -5, 5, 0);
-    blackLayerHighToleranceSlider = makeSlider("blackLayerHighTolerance", 10, 135, -5, 5, 0);
-    toleranceRangeSlider = makeSlider("toleranceRange", 10, 150, 0, 10, 2);
+    yellowToleranceRange = cp5.addRange("yellowTolerance")
+             // disable broadcasting since setRange and setRangeValues will trigger an event
+             .setBroadcast(false) 
+             .setPosition(10,30)
+             .setSize(200,20)
+             .setHandleSize(10)
+             .setRange(-5,5)
+             .setRangeValues(-1,1)
+             // after the initialization we turn broadcast back on again
+             .setBroadcast(true)
+             .setColorForeground(uIbackgroundActive)
+             .setColorBackground(uIbackground)  
+             ;
+    magentaToleranceRange = cp5.addRange("magentaTolerance")
+             // disable broadcasting since setRange and setRangeValues will trigger an event
+             .setBroadcast(false) 
+             .setPosition(10,60)
+             .setSize(200,20)
+             .setHandleSize(10)
+             .setRange(-5,5)
+             .setRangeValues(-1,1)
+             // after the initialization we turn broadcast back on again
+             .setBroadcast(true)
+             .setColorForeground(uIbackgroundActive)
+             .setColorBackground(uIbackground)  
+             ;
+    cyanToleranceRange = cp5.addRange("cyanTolerance")
+             // disable broadcasting since setRange and setRangeValues will trigger an event
+             .setBroadcast(false) 
+             .setPosition(10,90)
+             .setSize(200,20)
+             .setHandleSize(10)
+             .setRange(-5,5)
+             .setRangeValues(-1,1)
+             // after the initialization we turn broadcast back on again
+             .setBroadcast(true)
+             .setColorForeground(uIbackgroundActive)
+             .setColorBackground(uIbackground)  
+             ;
+    blackToleranceRange = cp5.addRange("blackTolerance")
+             // disable broadcasting since setRange and setRangeValues will trigger an event
+             .setBroadcast(false) 
+             .setPosition(10,120)
+             .setSize(200,20)
+             .setHandleSize(10)
+             .setRange(-5,5)
+             .setRangeValues(-1,1)
+             // after the initialization we turn broadcast back on again
+             .setBroadcast(true)
+             .setColorForeground(uIbackgroundActive)
+             .setColorBackground(uIbackground) 
+             ;
+
+    toleranceRangeSlider = makeSlider("toleranceRange", 10, 150, 0, 5, 2);
     tSizeSlider = makeSlider("tSize", 10, 75, 0, 500, 70);
     textXPosSlider = makeSlider("textXPos", 10, 30, -tb.width / 2, tb.width / 2, 0);
     textYPosSlider = makeSlider("textYPos", 10, 45, -tb.height / 2, tb.height / 2, 0 - tSize / 2);
@@ -163,44 +209,44 @@ void setup() {
         .setColorForeground(uIbackgroundActive)
         .setNumberOfTickMarks(5);
     layer1CP = cp5.addColorWheel("layer1ColorPicker")
-        .setPosition(290, 20)
+        .setPosition(360, 20)
         .setRGB(color(255, 255, 0))
         .moveTo("Output")
         .hide();
     layer2CP = cp5.addColorWheel("layer2ColorPicker")
-        .setPosition(290, 20)
+        .setPosition(360, 20)
         .setRGB(color(255, 0, 255,.8))
         .moveTo("Output")
         .hide();
     layer3CP = cp5.addColorWheel("layer3ColorPicker")
-        .setPosition(290, 20)
+        .setPosition(360, 20)
         .setRGB(color(0, 255, 255,.8))
         .moveTo("Output")
         .hide();
     layer4CP = cp5.addColorWheel("layer4ColorPicker")
-        .setPosition(290, 20)
+        .setPosition(360, 20)
         .setRGB(color(0, 0, 0,.8))
         .moveTo("Output")
         .hide();
     cp5.addButton("layer1")
         .setValue(0)
-        .setPosition(240, 30)
+        .setPosition(300, 30)
         .setSize(50, 20);
     cp5.addButton("layer2")
         .setValue(0)
-        .setPosition(240, 55)
+        .setPosition(300, 55)
         .setSize(50, 20);
     cp5.addButton("layer3")
         .setValue(0)
-        .setPosition(240, 80)
+        .setPosition(300, 80)
         .setSize(50, 20);
     cp5.addButton("layer4")
         .setValue(0)
-        .setPosition(240, 105)
+        .setPosition(300, 105)
         .setSize(50, 20);
     cp5.addButton("randomColors")
         .setValue(0)
-        .setPosition(240, 130)
+        .setPosition(300, 130)
         .setSize(70, 20);
     cp5.addButton("averageTolerance")
         .setValue(0)
@@ -308,14 +354,10 @@ void setup() {
     cp5.getController("leading").moveTo("Frame 2");
     cp5.getController("fontSelection").moveTo("Frame 2");
 
-    cp5.getController("yellowLayerLowTolerance").moveTo("Output");
-    cp5.getController("magentaLayerLowTolerance").moveTo("Output");
-    cp5.getController("cyanLayerLowTolerance").moveTo("Output");
-    cp5.getController("blackLayerLowTolerance").moveTo("Output");
-    cp5.getController("yellowLayerHighTolerance").moveTo("Output");
-    cp5.getController("magentaLayerHighTolerance").moveTo("Output");
-    cp5.getController("cyanLayerHighTolerance").moveTo("Output");
-    cp5.getController("blackLayerHighTolerance").moveTo("Output");
+    cp5.getController("yellowTolerance").moveTo("Output");
+    cp5.getController("magentaTolerance").moveTo("Output");
+    cp5.getController("cyanTolerance").moveTo("Output");
+    cp5.getController("blackTolerance").moveTo("Output");
     cp5.getController("toleranceRange").moveTo("Output");
     cp5.getController("lineSpacing").moveTo("Output");
     cp5.getController("layer1").moveTo("Output");
@@ -339,10 +381,11 @@ void setup() {
     noiseSeed(randNoiseSeed);
 
     // NoiseField setup
-    nfCyan = new NoiseField(fi,ib,tb,cyanLayerLowTolerance,cyanLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfMagenta = new NoiseField(fi,ib,tb,magentaLayerLowTolerance,cyanLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfYellow = new NoiseField(fi,ib,tb,yellowLayerLowTolerance,yellowLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
-    nfBlack = new NoiseField(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan = new NoiseField(fi,ib,tb,cp5.getController("cyanTolerance").getArrayValue(0),cp5.getController("cyanTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta = new NoiseField(fi,ib,tb,cp5.getController("magentaTolerance").getArrayValue(0),cp5.getController("magentaTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow = new NoiseField(fi,ib,tb,cp5.getController("yellowTolerance").getArrayValue(0),cp5.getController("yellowTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack = new NoiseField(fi,ib,tb,cp5.getController("blackTolerance").getArrayValue(0),cp5.getController("blackTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    
 
     
 }
@@ -384,19 +427,19 @@ void draw() {
         averageTolerance();
         }
     nfYellow.loadPixelsForBuffers();
-    nfYellow.update(fi,ib,tb,yellowLayerLowTolerance,yellowLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfYellow.update(fi,ib,tb,cp5.getController("yellowTolerance").getArrayValue(0),cp5.getController("yellowTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer1ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfYellow.drawGreenLayer();
     
     nfMagenta.loadPixelsForBuffers();
-    nfMagenta.update(fi,ib,tb,magentaLayerLowTolerance,magentaLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfMagenta.update(fi,ib,tb,cp5.getController("magentaTolerance").getArrayValue(0),cp5.getController("magentaTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer2ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfMagenta.drawRedLayer();
     
     nfCyan.loadPixelsForBuffers();
-    nfCyan.update(fi,ib,tb,cyanLayerLowTolerance,cyanLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfCyan.update(fi,ib,tb,cp5.getController("cyanTolerance").getArrayValue(0),cp5.getController("cyanTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer3ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfCyan.drawBlueLayer();
     
     nfBlack.loadPixelsForBuffers();
-    nfBlack.update(fi,ib,tb,blackLayerLowTolerance,blackLayerHighTolerance,.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
+    nfBlack.update(fi,ib,tb,cp5.getController("blackTolerance").getArrayValue(0),cp5.getController("blackTolerance").getArrayValue(1),.01,cp5.get(ColorWheel.class, "layer4ColorPicker").getRGB(),randNoiseSeed,margin,lineSpacing,displacmentFactor);
     nfBlack.drawBlackLayer();
     
     // BROKEN
@@ -611,14 +654,16 @@ void averageTolerance(){
     float averageThresholdMagenta =  map(r,0,255,-5,5);
     float averageThresholdYellow =  map(g,0,255,-5,5);
     float averageThresholdBlack =  map(bla,0,255,-5,5);
-    cyanLayerLowToleranceSlider.setValue(averageThresholdCyan-toleranceRange);
-    yellowLayerLowToleranceSlider.setValue(averageThresholdYellow-toleranceRange);
-    magentaLayerLowToleranceSlider.setValue(averageThresholdMagenta-toleranceRange);
-    blackLayerLowToleranceSlider.setValue(averageThresholdBlack-toleranceRange);
-    cyanLayerHighToleranceSlider.setValue(averageThresholdCyan+toleranceRange);
-    yellowLayerHighToleranceSlider.setValue(averageThresholdYellow+toleranceRange);
-    magentaLayerHighToleranceSlider.setValue(averageThresholdMagenta+toleranceRange);
-    blackLayerHighToleranceSlider.setValue(averageThresholdBlack+toleranceRange*.5);
+
+    cyanToleranceRange.setLowValue(averageThresholdCyan-toleranceRange);
+    yellowToleranceRange.setLowValue(averageThresholdYellow-toleranceRange);
+    magentaToleranceRange.setLowValue(averageThresholdMagenta-toleranceRange);
+    blackToleranceRange.setLowValue(averageThresholdBlack-toleranceRange*.5);
+
+    cyanToleranceRange.setHighValue(averageThresholdCyan+toleranceRange);
+    yellowToleranceRange.setHighValue(averageThresholdYellow+toleranceRange);
+    magentaToleranceRange.setHighValue(averageThresholdMagenta+toleranceRange);
+    blackToleranceRange.setHighValue(averageThresholdBlack+toleranceRange*.5);
     }
 }
 
@@ -635,9 +680,9 @@ void randomColors() {
 void updateBufferSize() {
     if (frameCount > 0) {
     bufferDimensions = new PVector(Integer.parseInt(cp5.get(Textfield.class, "outputWidth").getText()), Integer.parseInt(cp5.get(Textfield.class, "outputHeight").getText()));
-    ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
-    fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
+    ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
+    tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
+    fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
     fi.smooth(4);
 
         if(imageForBuffer.height>imageForBuffer.width){
@@ -700,7 +745,7 @@ void startRecord() {
 void closeRecord() {
     if (record) {
         fi.dispose();
-        fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y));
+        fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
         fi.smooth();
         record = !record;
     }
