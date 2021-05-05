@@ -7,6 +7,9 @@ import processing.svg.*;
 import de.ixdhof.hershey.*; 
 import controlP5.*; 
 import drop.*; 
+import milchreis.imageprocessing.*; 
+import milchreis.imageprocessing.utils.*; 
+import at.mukprojects.console.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -27,13 +30,21 @@ public class PlotMaker extends PApplet {
 //Instructions before using:
 //Must install Drop, HersheyFont, Control.P5, and Processing.SVG. All are available in the native processing libraries tool
 
-
 // The random images pulled from the web are all from unsplash.com, the rights to said photos are free for commercial and non-commercial use. Policy can be found here:https://unsplash.com/license
 
 // Copyright 2021 Adam Dworetzky
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// questions for DG: 
+// library for applying images changes and filters (brightness, contrast, tint, something kind of like imagemagik but in processing)
+// CP5 range slider, can I change the handle color because it's not clear that there are handles, documentation is not helpful
+
+
+
+
+
 
 
 
@@ -43,6 +54,7 @@ public class PlotMaker extends PApplet {
 
 ControlP5 cp5;
 SDrop drop;
+Console console;
 NoiseField nfCyan;
 NoiseField nfMagenta;
 NoiseField nfYellow;
@@ -54,7 +66,7 @@ NoiseField nfBlack;
 // change size of export(done) with presets for different papers(DONE)
 // Font Selection (DONE)
 // Dual Images, like double exposure (stretch but cool)
-// image filter and simple adjustments
+// image filter and simple adjustments (done?)
 // toggles to turn on and off layers (NOT DONE)
 // Toggle to switch back to blue, red, and black layer (NOT DONE)
 // Random word input for text layer (NOT DONE)
@@ -88,14 +100,15 @@ boolean layer2On = false;
 boolean layer3On = false;
 boolean layer4On = false;
 boolean splitView = true;
+boolean showConsoleOn = true;
 boolean imageView, outputView;
 
 int uIbackground = color(80,200);
 int uIbackgroundActive = color(110);
 
-Slider viewportScalerSlider, yellowLayerLowToleranceSlider, magentaLayerLowToleranceSlider, cyanLayerLowToleranceSlider,blackLayerLowToleranceSlider, yellowLayerHighToleranceSlider, magentaLayerHighToleranceSlider, cyanLayerHighToleranceSlider,blackLayerHighToleranceSlider,toleranceRangeSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider;
+Slider viewportScalerSlider, toleranceRangeSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider, brightnessSlider;
 Range yellowToleranceRange, magentaToleranceRange, cyanToleranceRange, blackToleranceRange;
-float viewportScaler, yellowLayerLowTolerance, magentaLayerLowTolerance, cyanLayerLowTolerance,blackLayerLowTolerance,yellowLayerHighTolerance, magentaLayerHighTolerance, cyanLayerHighTolerance,blackLayerHighTolerance,toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale, yellowTolerance, magentaTolerance, cyanTolerance, blackTolerance;
+float viewportScaler, toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale, yellowTolerance, magentaTolerance, cyanTolerance, blackTolerance, exposure;
 
 ColorWheel layer1CP, layer2CP, layer3CP, layer4CP;
 float layer1ColorPicker,layer2ColorPicker,layer3ColorPicker, layer4ColorPicker;
@@ -119,7 +132,7 @@ public void setup() {
     ib = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y),JAVA2D);
     tb = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y),JAVA2D);
     fi = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y),JAVA2D);
-    fi.smooth();
+    fi.smooth(8);
 
     // Drag and Drop Setup
     drop = new SDrop(this);
@@ -133,6 +146,10 @@ public void setup() {
 
     // set up UI
     cp5 = new ControlP5(this);
+
+    // Console draw set up
+    console = new Console(this);
+    console.start();
 
     // create tabs
     cp5.addTab("Frame 2")
@@ -158,10 +175,41 @@ public void setup() {
         .setLabel("Frame 1");
 
     // create UI elements
-    viewportScalerSlider = makeSlider("viewportScaler", 10, 30, 0, 2, .75f);
+    viewportScalerSlider = makeSlider("viewportScaler", 10, 30, 0, 2, .90f);
     imageXPosSlider = makeSlider("imageXPos", 10, 75, -ib.width / 2, ib.width / 2, 0);
     imageYPosSlider = makeSlider("imageYPos", 10, 90, -ib.height / 2, ib.height / 2, 0);
     imageScaleSlider = makeSlider("imageScale", 10, 105, 0, 2, 1);
+    cp5.addTextlabel("exposureLabel")
+        .setText("EXPOSURE")
+        .setPosition(35,135)
+        ;
+    cp5.addButton("exposureDown")
+        .setValue(0)
+        .setPosition(10, 130)
+        .setSize(20, 20)
+        .setCaptionLabel("-");
+    cp5.addButton("exposureUp")
+        .setValue(0)
+        .setPosition(90, 130)
+        .setSize(20, 20)
+        .setCaptionLabel("+");
+
+    cp5.addTextlabel("contrastLabel")
+        .setText("CONTRAST")
+        .setPosition(35,165)
+        ;
+    cp5.addButton("contrastDown")
+        .setValue(0)
+        .setPosition(10, 160)
+        .setSize(20, 20)
+        .setCaptionLabel("-");
+    cp5.addButton("contrastUp")
+        .setValue(0)
+        .setPosition(90, 160)
+        .setSize(20, 20)
+        .setCaptionLabel("+");
+
+    // http://www.sojamo.com/libraries/controlP5/reference/controlP5/Range.html
     yellowToleranceRange = cp5.addRange("yellowTolerance")
              // disable broadcasting since setRange and setRangeValues will trigger an event
              .setBroadcast(false) 
@@ -214,14 +262,19 @@ public void setup() {
              .setColorForeground(uIbackgroundActive)
              .setColorBackground(uIbackground) 
              ;
-
     toleranceRangeSlider = makeSlider("toleranceRange", 10, 150, 0, 5, 2);
     tSizeSlider = makeSlider("tSize", 10, 75, 0, 500, 70);
     textXPosSlider = makeSlider("textXPos", 10, 30, -tb.width / 2, tb.width / 2, 0);
     textYPosSlider = makeSlider("textYPos", 10, 45, -tb.height / 2, tb.height / 2, 0 - tSize / 2);
-    textRotationSlider = makeSlider("textRotation", 10, 60, -TWO_PI, TWO_PI, 0);
     leadingSlider = makeSlider("leading", 10, 90, -100, 100, 0);
     marginSlider = makeSlider("margin", 10, 165, 5, 100, 30);
+    spacingSlider = cp5.addSlider("textRotation")
+        .setPosition(10, 60)
+        .setWidth(100)
+        .setRange(0, 360)
+        .setValue(0)
+        .setColorForeground(uIbackgroundActive)
+        .setNumberOfTickMarks(8);
     spacingSlider = cp5.addSlider("lineSpacing")
         .setPosition(10, 180)
         .setWidth(100)
@@ -274,6 +327,10 @@ public void setup() {
         .setPosition(30, 210)
         .setSize(100
         , 20);
+    cp5.addButton("hideConsole")
+        .setValue(0)
+        .setPosition(10, 50)
+        .setSize(70, 20);
     unsplashKeywordInput = cp5.addTextfield("unsplashKeyword")
         .setPosition(10, 30)
         .setSize(100, 20)
@@ -302,9 +359,13 @@ public void setup() {
         .setAutoClear(false)
         .setColor(color(255, 0, 0))
         .setText("575");
-    cp5.addButton("saveImage")
+    cp5.addButton("saveSVG")
         .setValue(1)
         .setPosition(190, 30)
+        .setSize(50, 20);
+    cp5.addButton("savePNG")
+        .setValue(1)
+        .setPosition(190, 65)
         .setSize(50, 20);
     println("Loading Image...");
     cp5.addButton("newImage")
@@ -359,6 +420,7 @@ public void setup() {
     // group controllers into tabs
     cp5.getController("viewportScaler").moveTo("Viewport");
     cp5.getController("viewportPreset").moveTo("Viewport");
+    cp5.getController("hideConsole").moveTo("Viewport");
 
 
     cp5.getController("unsplashKeyword").moveTo("default");
@@ -366,6 +428,9 @@ public void setup() {
     cp5.getController("imageXPos").moveTo("default");
     cp5.getController("imageYPos").moveTo("default");
     cp5.getController("imageYPos").moveTo("default");
+    cp5.getController("exposureDown").moveTo("default");
+    cp5.getController("exposureUp").moveTo("default");
+
 
     cp5.getController("input").moveTo("Frame 2");
     cp5.getController("textXPos").moveTo("Frame 2");
@@ -390,7 +455,8 @@ public void setup() {
     cp5.getController("averageTolerance").moveTo("Output");
 
 
-    cp5.getController("saveImage").moveTo("Export");
+    cp5.getController("saveSVG").moveTo("Export");
+    cp5.getController("savePNG").moveTo("Export");
     cp5.getController("outputWidth").moveTo("Export");
     cp5.getController("outputHeight").moveTo("Export");
     cp5.getController("updateBufferSize").moveTo("Export");
@@ -420,6 +486,7 @@ public void draw() {
     ib.scale(imageScale, imageScale);
     ib.imageMode(CENTER);
     ib.background(12);
+    imageForBuffer = Brightness.apply(imageForBuffer, PApplet.parseInt(exposure)); 
     ib.image(imageForBuffer, imageXPos, imageYPos);
     ib.pop();
     ib.endDraw();
@@ -429,11 +496,11 @@ public void draw() {
     tb.background(255);
     tb.push();
     tb.textFont(font, tSize);
-    tb.textAlign(LEFT);
+    tb.textAlign(CENTER);
     tb.textLeading(tSize + leading);
     tb.fill(0);
     tb.translate(tb.width / 2 + textXPos, tb.height / 2 + textYPos);
-    tb.rotate(textRotation);
+    tb.rotate(radians(textRotation));
     tb.text(cp5.get(Textfield.class, "input").getText(), -tb.width / 2, 0, tb.width, tb.height);
     tb.pop();
     tb.endDraw();
@@ -472,6 +539,14 @@ public void draw() {
     }
     // draw all three buffers to the screen (edit this to get split view or single image view)
     showBuffers();
+    // draw console to screen
+    // (x, y, width, height, preferredTextSize, minTextSize, linespace, padding, strokeColor, backgroundColor, textColor)
+    if (showConsoleOn) {
+    console.draw(0, height - 120, width, height, 12, 5, 4, 4, color(220,0), color(10,50), color(255, 255, 255,100));
+    }
+  
+    // Print the console to the system out.
+    console.print();
 }
 
 public void showBuffers() {
@@ -534,9 +609,18 @@ public void newImage() {
         getImage((cp5.get(Textfield.class, "unsplashKeyword").getText()));
 }
 
-public void saveImage() {
+public void saveSVG() {
     if (frameCount > 0) {
+        println("Exporting SVG...");
         record = true;
+    }
+}
+
+public void savePNG() {
+    if (frameCount > 0) {
+        println("exporting...");
+        fi.save("Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.png");
+        println("Done");
     }
 }
 
@@ -639,6 +723,7 @@ public void layer4() {
 
 public void averageTolerance(){
     if(frameCount>0){
+    println("Finding Average Threshold...");
     ib.loadPixels();
     int r = 0, g = 0, b = 0;
     int r1 = 0, g1 = 0, b1 = 0;
@@ -685,6 +770,7 @@ public void averageTolerance(){
     yellowToleranceRange.setHighValue(averageThresholdYellow+toleranceRange);
     magentaToleranceRange.setHighValue(averageThresholdMagenta+toleranceRange);
     blackToleranceRange.setHighValue(averageThresholdBlack+toleranceRange*.5f);
+    println("Done!");
     }
 }
 
@@ -700,6 +786,7 @@ public void randomColors() {
 
 public void updateBufferSize() {
     if (frameCount > 0) {
+        println("Updating Buffer Size...");
     bufferDimensions = new PVector(Integer.parseInt(cp5.get(Textfield.class, "outputWidth").getText()), Integer.parseInt(cp5.get(Textfield.class, "outputHeight").getText()));
     ib = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y),JAVA2D);
     tb = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y),JAVA2D);
@@ -715,6 +802,9 @@ public void updateBufferSize() {
         }
 
     imageForBuffer.loadPixels();
+    textXPosSlider.setRange(-tb.width / 2, tb.width / 2);
+    textYPosSlider.setRange(-tb.height / 2, tb.height / 2);
+    println("Done!");
     }
 }
 
@@ -759,7 +849,7 @@ public PGraphics addLabel(PGraphics element_) {
 public void startRecord() {
     if (record) {
         fi = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y), SVG, "Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg");
-
+        println("Done!"+"Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg"+" successfully exported!");
     }
 }
 
@@ -767,7 +857,7 @@ public void closeRecord() {
     if (record) {
         fi.dispose();
         fi = createGraphics(PApplet.parseInt(bufferDimensions.x), PApplet.parseInt(bufferDimensions.y),JAVA2D);
-        fi.smooth();
+        fi.smooth(8);
         record = !record;
     }
 }
@@ -804,21 +894,27 @@ public void sizePreset(int n){
             if(n== 0){
         cp5.get(Textfield.class, "outputWidth").setText("383");
         cp5.get(Textfield.class, "outputHeight").setText("575");
+        viewportScalerSlider.setValue(.90f);
     }else if (n== 1) {
         cp5.get(Textfield.class, "outputWidth").setText("598");
         cp5.get(Textfield.class, "outputHeight").setText("842");
+        viewportScalerSlider.setValue(.57f);
     }else if (n== 2) {
         cp5.get(Textfield.class, "outputWidth").setText("842");
         cp5.get(Textfield.class, "outputHeight").setText("1191");
+        viewportScalerSlider.setValue(.39f);
     }else if (n== 3) {
         cp5.get(Textfield.class, "outputWidth").setText("842");
         cp5.get(Textfield.class, "outputHeight").setText("1225");
+        viewportScalerSlider.setValue(.39f);
     }else if (n== 4) {
         cp5.get(Textfield.class, "outputWidth").setText("612");
         cp5.get(Textfield.class, "outputHeight").setText("842");
+        viewportScalerSlider.setValue(.57f);
     }else if (n== 5) {
         cp5.get(Textfield.class, "outputWidth").setText("1080");
         cp5.get(Textfield.class, "outputHeight").setText("1080");
+        viewportScalerSlider.setValue(.31f);
     }
     updateBufferSize();
     }
@@ -853,6 +949,37 @@ public void fontSelection(int n){
     font = createFont("fonts/Karrik-Regular.ttf", 50);
     }
 }
+
+public void exposureDown(){
+    if(frameCount>0){
+        imageForBuffer = Brightness.apply(imageForBuffer, -5); 
+    }
+}
+public void exposureUp(){
+    if(frameCount>0){
+        imageForBuffer = Brightness.apply(imageForBuffer, 5); 
+    }
+}
+public void contrastDown(){
+    if(frameCount>0){
+        imageForBuffer = Contrast.apply(imageForBuffer, -.1f); 
+    }
+}
+public void contrastUp(){
+    if(frameCount>0){
+        imageForBuffer = Contrast.apply(imageForBuffer, .1f); 
+    }
+}
+public void hideConsole(){
+    if (frameCount>0 && showConsoleOn) {
+        showConsoleOn= false;
+        cp5.getController("hideConsole").setLabel("ShowConsole");
+    }else if (frameCount>0 && showConsoleOn==false){
+        showConsoleOn= true;
+        cp5.getController("hideConsole").setLabel("HideConsole");
+    }
+}
+
 class NoiseField { 
 
     PGraphics outputElement;
