@@ -15,34 +15,37 @@ import processing.svg.*;
 import de.ixdhof.hershey.*;
 import controlP5.*;
 import drop.*;
+import milchreis.imageprocessing.*;
+import milchreis.imageprocessing.utils.*;
+import at.mukprojects.console.*;
 ```
-The sketch needs the processing SVG library, HersheyText library, ControlP5 library, and the Drop library. All are available within the native processing library manager. Install before use and then run!
+The sketch needs the processing SVG library, HersheyText library, ControlP5 library, the Drop library, The Image Processing Algorithms library, and the Console library. All are available within the native processing library manager. Install before use and then run!
 
 ## Usage
 ### Frame 1
 ![Alt text](screenshots/frame1ui.png "Frame 1")
 
-The Frame 1 UI controls the image used to displace the lines in the final output
+The IMAGE UI controls the image used to displace the lines in the final output. The unsplash keyword is the search term used to source images from unsplash. NEWIMAGE gets a new image from unsplash. The image will automatically fit to the window but if you resize it, FITIMAGE will return it to its best size. IMAGEXPOS and IMAGEYPOS allow you to move the image in the window. IMAGESCALE allows you to zoom in and out, however, edges of the image may be visible. EXPOSURE raises and lowers the overall brightness of the image. CONTRAST raises and lowers the contrast. CONTRAST is destructive unfortunatly so raising it and then lowering it doesnt return to exactly the same visual quality of the original image.
 
 ### Frame 2
 ![Alt text](screenshots/frame2ui.png "Frame 2")
 
-The Frame 2 UI controls the the text added to create a knockout effect in the final output
+The TEXT UI controls the the text added to create a knockout effect in the final output. TEXTXPOS and TEXTYPOS allow you to move the text around. TEXTROTATION allows you to rotate the text and it snaps to 40 degree incriments. LEADING increases or decreases line spacing. TEXTBOXWIDTHOFFSET allows you to decrease the width of the text box so you can force multiple lines of text. INPUT is the input box for text input. FONTSELECTION allows you to change the font of the text.
 
 ### Output
 ![Alt text](screenshots/outputui.png "Output")
 
-The output UI controls the parameters on which the lines drawn to the final image operate.
+The OUTPUT UI controls the parameters on which the lines drawn to the final image operate. This is where the fun is. YELLOWTOLERANCE, MAGENTATOLERANCE, CYANTOLERANCE,BLACKTOLERANCE control the tolerance range between which lines are drawn on their respective color layers. each layer only samples the underlying color of the pixels in their color space. TOLERANCERANGE is the range above and below the average tolerance that is sampled. MARGIN is the white space around the drawn image. LINESPACING is how closly the line are drawn to eachother (anything less than two will severly slow down the program, it still works but be patient.) LAYER1, LAYER2, LAYER3, LAYER4 open a color picker that lets you change the color of that layer. RANDOMCOLOR generates random colors for each layer.
 
 ### Viewport
 ![Alt text](screenshots/viewportui.png "Viewport")
 
-The viewport section allows you to changes the size and scope of the panels found in the window
+The VIEWPORT section allows you to changes the size and scope of the panels found in the window. VIEWPORTSCALER will zoom in an out on each frame. This setting will automatically resize to fit the canvas in the window. HIDECONSOLE will hide the terminal window at the bottom of the screen. VIEWPORTPRESET allows you to see 1 specific frame or all 3 at the same time.
 
 ### Export
 ![Alt text](screenshots/exportui.png "Export")
 
-This control the size of the image that is rendered out
+The EXPORT UI controls the size of the image that is rendered out. OUTPUTWIDTH and OUTPUTHEIGHT are the actual pixel dimensions of the output canvas. After changing these, the user needs to press UPDATEBUFFERSIZE to trigger the change and the auto resizing of the image. SIZEPRESET allows you to pick from some common plotting sizes. SAVESVG renders out and SVG to the sketch folder titled output. SAVEPNG renders out a png to the same folder.
 
 
 
