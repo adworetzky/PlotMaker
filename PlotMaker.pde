@@ -79,12 +79,16 @@ boolean splitView = true;
 boolean showConsoleOn = true;
 boolean imageView, outputView;
 
-color uIbackground = color(80,200);
-color uIbackgroundActive = color(110);
+int uiOriginX = 0;
+int uiOriginY = 0;
 
-Slider viewportScalerSlider, toleranceRangeSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider, brightnessSlider;
+color uIbackground = color(80,200);
+color uIForground = color(90);
+color uIActive = color(120);
+
+Slider viewportScalerSlider, toleranceRangeSlider, textXPosSlider, textYPosSlider, textRotationSlider, tSizeSlider, leadingSlider, spacingSlider, imageXPosSlider, imageYPosSlider, imageScaleSlider, marginSlider, brightnessSlider, textBoxWidthSlider;
 Range yellowToleranceRange, magentaToleranceRange, cyanToleranceRange, blackToleranceRange;
-float viewportScaler, toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale, yellowTolerance, magentaTolerance, cyanTolerance, blackTolerance, exposure;
+float viewportScaler, toleranceRange, textXPos, textYPos, textRotation, tSize, leading, lineSpacing, imageXPos, imageYPos, imageScale, yellowTolerance, magentaTolerance, cyanTolerance, blackTolerance, exposure, textBoxWidthOffset;
 
 ColorWheel layer1CP, layer2CP, layer3CP, layer4CP;
 float layer1ColorPicker,layer2ColorPicker,layer3ColorPicker, layer4ColorPicker;
@@ -128,60 +132,60 @@ void setup() {
     console.start();
 
     // create tabs
-    cp5.addTab("Frame 2")
+    cp5.addTab("Text")
         .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(uIbackgroundActive);
+        .setColorActive(uIActive);
     cp5.addTab("Output")
         .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(uIbackgroundActive);
+        .setColorActive(uIActive);
     cp5.addTab("Viewport")
         .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(uIbackgroundActive);
+        .setColorActive(uIActive);
     cp5.addTab("Export")
         .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(uIbackgroundActive);
+        .setColorActive(uIActive);
     cp5.getTab("default")
         .setColorBackground(uIbackground)
         .setColorLabel(color(255))
-        .setColorActive(uIbackgroundActive)
-        .setLabel("Frame 1");
+        .setColorActive(uIActive)
+        .setLabel("Image");
 
     // create UI elements
-    viewportScalerSlider = makeSlider("viewportScaler", 10, 30, 0, 2, .90);
-    imageXPosSlider = makeSlider("imageXPos", 10, 75, -ib.width / 2, ib.width / 2, 0);
-    imageYPosSlider = makeSlider("imageYPos", 10, 90, -ib.height / 2, ib.height / 2, 0);
-    imageScaleSlider = makeSlider("imageScale", 10, 105, 0, 2, 1);
+    viewportScalerSlider = makeSlider("viewportScaler", uiOriginX+10, uiOriginY+30, 0, 2, .90);
+    imageXPosSlider = makeSlider("imageXPos", uiOriginX+10, uiOriginY+75, -ib.width / 2, ib.width / 2, 0);
+    imageYPosSlider = makeSlider("imageYPos", uiOriginX+10, uiOriginY+90, -ib.height / 2, ib.height / 2, 0);
+    imageScaleSlider = makeSlider("imageScale", uiOriginX+10, uiOriginY+105, 0, 2, 1);
     cp5.addTextlabel("exposureLabel")
         .setText("EXPOSURE")
-        .setPosition(35,135)
+        .setPosition(uiOriginX+35,uiOriginY+135)
         ;
     cp5.addButton("exposureDown")
         .setValue(0)
-        .setPosition(10, 130)
+        .setPosition(uiOriginX+10, uiOriginY+130)
         .setSize(20, 20)
         .setCaptionLabel("-");
     cp5.addButton("exposureUp")
         .setValue(0)
-        .setPosition(90, 130)
+        .setPosition(uiOriginX+90, uiOriginY+130)
         .setSize(20, 20)
         .setCaptionLabel("+");
 
     cp5.addTextlabel("contrastLabel")
         .setText("CONTRAST")
-        .setPosition(35,165)
+        .setPosition(uiOriginX+35,uiOriginY+165)
         ;
     cp5.addButton("contrastDown")
         .setValue(0)
-        .setPosition(10, 160)
+        .setPosition(uiOriginX+10, uiOriginY+160)
         .setSize(20, 20)
         .setCaptionLabel("-");
     cp5.addButton("contrastUp")
         .setValue(0)
-        .setPosition(90, 160)
+        .setPosition(uiOriginX+90, uiOriginY+160)
         .setSize(20, 20)
         .setCaptionLabel("+");
 
@@ -189,139 +193,140 @@ void setup() {
     yellowToleranceRange = cp5.addRange("yellowTolerance")
              // disable broadcasting since setRange and setRangeValues will trigger an event
              .setBroadcast(false) 
-             .setPosition(10,30)
+             .setPosition(uiOriginX+10,uiOriginY+30)
              .setSize(200,20)
              .setHandleSize(10)
              .setRange(-5,5)
              .setRangeValues(-1,1)
              // after the initialization we turn broadcast back on again
              .setBroadcast(true)
-             .setColorForeground(uIbackgroundActive)
+             .setColorForeground(uIActive)
              .setColorBackground(uIbackground)  
              ;
     magentaToleranceRange = cp5.addRange("magentaTolerance")
              // disable broadcasting since setRange and setRangeValues will trigger an event
              .setBroadcast(false) 
-             .setPosition(10,60)
+             .setPosition(uiOriginX+10,uiOriginY+60)
              .setSize(200,20)
              .setHandleSize(10)
              .setRange(-5,5)
              .setRangeValues(-1,1)
              // after the initialization we turn broadcast back on again
              .setBroadcast(true)
-             .setColorForeground(uIbackgroundActive)
+             .setColorForeground(uIActive)
              .setColorBackground(uIbackground)  
              ;
     cyanToleranceRange = cp5.addRange("cyanTolerance")
              // disable broadcasting since setRange and setRangeValues will trigger an event
              .setBroadcast(false) 
-             .setPosition(10,90)
+             .setPosition(uiOriginX+10,uiOriginY+90)
              .setSize(200,20)
              .setHandleSize(10)
              .setRange(-5,5)
              .setRangeValues(-1,1)
              // after the initialization we turn broadcast back on again
              .setBroadcast(true)
-             .setColorForeground(uIbackgroundActive)
+             .setColorForeground(uIActive)
              .setColorBackground(uIbackground)  
              ;
     blackToleranceRange = cp5.addRange("blackTolerance")
              // disable broadcasting since setRange and setRangeValues will trigger an event
              .setBroadcast(false) 
-             .setPosition(10,120)
+             .setPosition(uiOriginX+10,uiOriginY+120)
              .setSize(200,20)
              .setHandleSize(10)
              .setRange(-5,5)
              .setRangeValues(-1,1)
              // after the initialization we turn broadcast back on again
              .setBroadcast(true)
-             .setColorForeground(uIbackgroundActive)
+             .setColorForeground(uIActive)
              .setColorBackground(uIbackground) 
              ;
-    toleranceRangeSlider = makeSlider("toleranceRange", 10, 150, 0, 5, 2);
-    tSizeSlider = makeSlider("tSize", 10, 75, 0, 500, 70);
-    textXPosSlider = makeSlider("textXPos", 10, 30, -tb.width / 2, tb.width / 2, 0);
-    textYPosSlider = makeSlider("textYPos", 10, 45, -tb.height / 2, tb.height / 2, 0 - tSize / 2);
-    leadingSlider = makeSlider("leading", 10, 90, -100, 100, 0);
-    marginSlider = makeSlider("margin", 10, 165, 5, 100, 30);
-    spacingSlider = cp5.addSlider("textRotation")
-        .setPosition(10, 60)
+    toleranceRangeSlider = makeSlider("toleranceRange", uiOriginX+10, uiOriginY+150, 0, 5, 2);
+    tSizeSlider = makeSlider("tSize", uiOriginX+10, uiOriginY+75, 0, 500, 70);
+    textXPosSlider = makeSlider("textXPos", uiOriginX+10, uiOriginY+30, -tb.width / 2, tb.width / 2, 0);
+    textYPosSlider = makeSlider("textYPos", uiOriginX+10, uiOriginY+45, -tb.height / 2, tb.height / 2, 0 - tSize / 2);
+    leadingSlider = makeSlider("leading", uiOriginX+10, uiOriginY+90, -100, 100, 0);
+    marginSlider = makeSlider("margin", uiOriginX+10, uiOriginY+165, 5, 100, 30);
+    textBoxWidthSlider = makeSlider("textBoxWidthOffset", uiOriginX+10, uiOriginY+105, 0, tb.width / 2, 0);
+    textRotationSlider = cp5.addSlider("textRotation")
+        .setPosition(uiOriginX+10, uiOriginY+60)
         .setWidth(100)
         .setRange(0, 360)
         .setValue(0)
-        .setColorForeground(uIbackgroundActive)
-        .setNumberOfTickMarks(8);
+        .setColorForeground(uIActive)
+        .setNumberOfTickMarks(13);
     spacingSlider = cp5.addSlider("lineSpacing")
-        .setPosition(10, 180)
+        .setPosition(uiOriginX+10, uiOriginY+180)
         .setWidth(100)
         .setRange(1, 5)
         .setValue(2)
-        .setColorForeground(uIbackgroundActive)
+        .setColorForeground(uIActive)
         .setNumberOfTickMarks(5);
     layer1CP = cp5.addColorWheel("layer1ColorPicker")
-        .setPosition(360, 20)
+        .setPosition(uiOriginX+360, uiOriginY+20)
         .setRGB(color(255, 255, 0))
         .moveTo("Output")
         .hide();
     layer2CP = cp5.addColorWheel("layer2ColorPicker")
-        .setPosition(360, 20)
+        .setPosition(uiOriginX+360, uiOriginY+20)
         .setRGB(color(255, 0, 255,.8))
         .moveTo("Output")
         .hide();
     layer3CP = cp5.addColorWheel("layer3ColorPicker")
-        .setPosition(360, 20)
+        .setPosition(uiOriginX+360, uiOriginY+20)
         .setRGB(color(0, 255, 255,.8))
         .moveTo("Output")
         .hide();
     layer4CP = cp5.addColorWheel("layer4ColorPicker")
-        .setPosition(360, 20)
+        .setPosition(uiOriginX+360, uiOriginY+20)
         .setRGB(color(0, 0, 0,.8))
         .moveTo("Output")
         .hide();
     cp5.addButton("layer1")
         .setValue(0)
-        .setPosition(300, 30)
+        .setPosition(uiOriginX+300, uiOriginY+30)
         .setSize(50, 20);
     cp5.addButton("layer2")
         .setValue(0)
-        .setPosition(300, 55)
+        .setPosition(uiOriginX+300, uiOriginY+55)
         .setSize(50, 20);
     cp5.addButton("layer3")
         .setValue(0)
-        .setPosition(300, 80)
+        .setPosition(uiOriginX+300, uiOriginY+80)
         .setSize(50, 20);
     cp5.addButton("layer4")
         .setValue(0)
-        .setPosition(300, 105)
+        .setPosition(uiOriginX+300, uiOriginY+105)
         .setSize(50, 20);
     cp5.addButton("randomColors")
         .setValue(0)
-        .setPosition(300, 130)
+        .setPosition(uiOriginX+300, uiOriginY+130)
         .setSize(70, 20);
     cp5.addButton("averageTolerance")
         .setValue(0)
-        .setPosition(30, 210)
+        .setPosition(uiOriginX+10, uiOriginY+210)
         .setSize(100
         , 20);
     cp5.addButton("hideConsole")
         .setValue(0)
-        .setPosition(10, 50)
+        .setPosition(uiOriginX+10, uiOriginY+50)
         .setSize(70, 20);
     unsplashKeywordInput = cp5.addTextfield("unsplashKeyword")
-        .setPosition(10, 30)
+        .setPosition(uiOriginX+10, uiOriginY+30)
         .setSize(100, 20)
         .setFocus(false)
         .setAutoClear(false)
         .setColor(color(255, 0, 0));
     tbInput = cp5.addTextfield("input")
-        .setPosition(200, 30)
+        .setPosition(uiOriginX+210, uiOriginY+30)
         .setSize(100, 20)
         .setFocus(true)
         .setAutoClear(false)
         .setColor(color(255, 0, 0))
         .setText("");
     outputWidthInput = cp5.addTextfield("outputWidth")
-        .setPosition(10, 30)
+        .setPosition(uiOriginX+10, uiOriginY+30)
         .setSize(100, 20)
         .setFocus(false)
         .setAutoClear(false)
@@ -329,7 +334,7 @@ void setup() {
         .setText("383");
         outputWidthInput.setText("383");
     outputHeightInput = cp5.addTextfield("outputHeight")
-        .setPosition(10, 65)
+        .setPosition(uiOriginX+10, uiOriginY+65)
         .setSize(100, 20)
         .setFocus(false)
         .setAutoClear(false)
@@ -337,27 +342,27 @@ void setup() {
         .setText("575");
     cp5.addButton("saveSVG")
         .setValue(1)
-        .setPosition(190, 30)
+        .setPosition(uiOriginX+190, uiOriginY+30)
         .setSize(50, 20);
     cp5.addButton("savePNG")
         .setValue(1)
-        .setPosition(190, 65)
+        .setPosition(uiOriginX+190, uiOriginY+65)
         .setSize(50, 20);
     println("Loading Image...");
     cp5.addButton("newImage")
         .setValue(0)
-        .setPosition(120, 30)
+        .setPosition(uiOriginX+120, uiOriginY+30)
         .setSize(50, 20);
     cp5.addButton("fitImage")
         .setValue(0)
-        .setPosition(180, 30)
+        .setPosition(uiOriginX+180, uiOriginY+30)
         .setSize(50, 20);
     cp5.addButton("updateBufferSize")
         .setValue(0)
-        .setPosition(10, 100)
+        .setPosition(uiOriginX+10, uiOriginY+100)
         .setSize(80, 20);
     sizePresetList = cp5.addScrollableList("sizePreset")
-        .setPosition(100, 100)
+        .setPosition(uiOriginX+100, uiOriginY+100)
         .setSize(100, 100)
         .setBarHeight(20)
         .setItemHeight(20)
@@ -370,7 +375,7 @@ void setup() {
         sizePresetList.addItem("Letter",4);
         sizePresetList.addItem("Instagram",5);
     viewportPresetList = cp5.addScrollableList("viewportPreset")
-        .setPosition(100, 100)
+        .setPosition(uiOriginX+100, uiOriginY+100)
         .setSize(100, 100)
         .setBarHeight(20)
         .setItemHeight(20)
@@ -380,7 +385,7 @@ void setup() {
         viewportPresetList.addItem("Output View",1);
         viewportPresetList.addItem("Image View",2);
     fontSelectionList = cp5.addScrollableList("fontSelection")
-        .setPosition(200, 70)
+        .setPosition(uiOriginX+210, uiOriginY+70)
         .setSize(100, 100)
         .setBarHeight(20)
         .setItemHeight(20)
@@ -408,13 +413,14 @@ void setup() {
     cp5.getController("exposureUp").moveTo("default");
 
 
-    cp5.getController("input").moveTo("Frame 2");
-    cp5.getController("textXPos").moveTo("Frame 2");
-    cp5.getController("textYPos").moveTo("Frame 2");
-    cp5.getController("textRotation").moveTo("Frame 2");
-    cp5.getController("tSize").moveTo("Frame 2");
-    cp5.getController("leading").moveTo("Frame 2");
-    cp5.getController("fontSelection").moveTo("Frame 2");
+    cp5.getController("input").moveTo("Text");
+    cp5.getController("textXPos").moveTo("Text");
+    cp5.getController("textYPos").moveTo("Text");
+    cp5.getController("textRotation").moveTo("Text");
+    cp5.getController("tSize").moveTo("Text");
+    cp5.getController("leading").moveTo("Text");
+    cp5.getController("fontSelection").moveTo("Text");
+    cp5.getController("textBoxWidthOffset").moveTo("Text");
 
     cp5.getController("yellowTolerance").moveTo("Output");
     cp5.getController("magentaTolerance").moveTo("Output");
@@ -467,17 +473,21 @@ void draw() {
     ib.pop();
     ib.endDraw();
 
-    // frame 2, text layer (maybe also inmage layer if i get around to it)
+    // Text, text layer (maybe also inmage layer if i get around to it)
     tb.beginDraw();
     tb.background(255);
     tb.push();
-    tb.textFont(font, tSize);
-    tb.textAlign(CENTER);
-    tb.textLeading(tSize + leading);
-    tb.fill(0);
     tb.translate(tb.width / 2 + textXPos, tb.height / 2 + textYPos);
     tb.rotate(radians(textRotation));
-    tb.text(cp5.get(Textfield.class, "input").getText(), -tb.width / 2, 0, tb.width, tb.height);
+    tb.textAlign(CENTER,CENTER);
+    tb.rectMode(CENTER);
+    // tb.fill(0);
+    // tb.rect(0, 0, width, tSize + leading);
+    tb.textFont(font, tSize);
+    tb.textLeading(tSize + leading);
+    // tb.fill(255);
+    tb.fill(0);
+    tb.text(cp5.get(Textfield.class, "input").getText(), 0, 0, tb.width-textBoxWidthOffset, tb.height);
     tb.pop();
     tb.endDraw();
 
@@ -554,7 +564,9 @@ public Slider makeSlider(String name, int posX, int posY, float rangeMin, float 
         .setWidth(100)
         .setRange(rangeMin, rangeMax)
         .setValue(value)
-        .setColorForeground(uIbackgroundActive);
+        .setColorBackground(uIbackground)
+        .setColorForeground(uIForground)
+        .setColorActive(uIActive);
     return s;
 }
 
@@ -595,8 +607,8 @@ void saveSVG() {
 void savePNG() {
     if (frameCount > 0) {
         println("exporting...");
-        fi.save("Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.png");
-        println("Done");
+        fi.save("Output/Image-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".png");
+        println("Done!"+"Image-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".png"+" successfully exported!");
     }
 }
 
@@ -762,7 +774,6 @@ void randomColors() {
 
 void updateBufferSize() {
     if (frameCount > 0) {
-        println("Updating Buffer Size...");
     bufferDimensions = new PVector(Integer.parseInt(cp5.get(Textfield.class, "outputWidth").getText()), Integer.parseInt(cp5.get(Textfield.class, "outputHeight").getText()));
     ib = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
     tb = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y),JAVA2D);
@@ -825,8 +836,8 @@ PGraphics addLabel(PGraphics element_) {
 // SVG record actions
 void startRecord() {
     if (record) {
-        fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y), SVG, "Output/Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg");
-        println("Done!"+"Output-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + "-####.svg"+" successfully exported!");
+        fi = createGraphics(int(bufferDimensions.x), int(bufferDimensions.y), SVG, "Output/Vector-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".svg");
+        println("Done!"+"Vector-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".svg"+" successfully exported!");
     }
 }
 
@@ -868,30 +879,37 @@ imageForBuffer.loadPixels();
 
 void sizePreset(int n){
     if (frameCount>0) {
+        println("Updating Buffer Size...");
             if(n== 0){
         cp5.get(Textfield.class, "outputWidth").setText("383");
         cp5.get(Textfield.class, "outputHeight").setText("575");
         viewportScalerSlider.setValue(.90);
+        println("Postcard size set");
     }else if (n== 1) {
         cp5.get(Textfield.class, "outputWidth").setText("598");
         cp5.get(Textfield.class, "outputHeight").setText("842");
         viewportScalerSlider.setValue(.57);
+        println("A4 size set");
     }else if (n== 2) {
         cp5.get(Textfield.class, "outputWidth").setText("842");
         cp5.get(Textfield.class, "outputHeight").setText("1191");
         viewportScalerSlider.setValue(.39);
+        println("A3 size set");
     }else if (n== 3) {
         cp5.get(Textfield.class, "outputWidth").setText("842");
         cp5.get(Textfield.class, "outputHeight").setText("1225");
         viewportScalerSlider.setValue(.39);
+        println("Tabloid size set");
     }else if (n== 4) {
         cp5.get(Textfield.class, "outputWidth").setText("612");
         cp5.get(Textfield.class, "outputHeight").setText("842");
         viewportScalerSlider.setValue(.57);
+        println("Letter size set");
     }else if (n== 5) {
         cp5.get(Textfield.class, "outputWidth").setText("1080");
         cp5.get(Textfield.class, "outputHeight").setText("1080");
         viewportScalerSlider.setValue(.31);
+        println("Instagram size set");
     }
     updateBufferSize();
     }
