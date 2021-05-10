@@ -22,12 +22,12 @@ import at.mukprojects.console.*;
 The sketch needs the processing SVG library, HersheyText library, ControlP5 library, the Drop library, The Image Processing Algorithms library, and the Console library. All are available within the native processing library manager. Install before use and then run!
 
 ## Usage
-### Frame 1
+### Image
 ![Alt text](screenshots/frame1ui.png "Frame 1")
 
 The IMAGE UI controls the image used to displace the lines in the final output. The unsplash keyword is the search term used to source images from unsplash. NEWIMAGE gets a new image from unsplash. The image will automatically fit to the window but if you resize it, FITIMAGE will return it to its best size. IMAGEXPOS and IMAGEYPOS allow you to move the image in the window. IMAGESCALE allows you to zoom in and out, however, edges of the image may be visible. EXPOSURE raises and lowers the overall brightness of the image. CONTRAST raises and lowers the contrast. CONTRAST is destructive unfortunatly so raising it and then lowering it doesnt return to exactly the same visual quality of the original image.
 
-### Frame 2
+### Text
 ![Alt text](screenshots/frame2ui.png "Frame 2")
 
 The TEXT UI controls the the text added to create a knockout effect in the final output. TEXTXPOS and TEXTYPOS allow you to move the text around. TEXTROTATION allows you to rotate the text and it snaps to 40 degree incriments. LEADING increases or decreases line spacing. TEXTBOXWIDTHOFFSET allows you to decrease the width of the text box so you can force multiple lines of text. INPUT is the input box for text input. FONTSELECTION allows you to change the font of the text.
