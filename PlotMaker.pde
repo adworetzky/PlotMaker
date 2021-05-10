@@ -4,7 +4,7 @@
 // Use, add to, break, and fix however you would like. The only thing I ask is that you make cool stuff
 
 //Instructions before using:
-//Must install Drop, HersheyFont, Control.P5, and Processing.SVG. All are available in the native processing libraries tool
+//Must install processing SVG library, HersheyText library, ControlP5 library, the Drop library, The Image Processing Algorithms library, and the Console library. All are available in the native processing libraries tool
 
 // The random images pulled from the web are all from unsplash.com, the rights to said photos are free for commercial and non-commercial use. Policy can be found here:https://unsplash.com/license
 

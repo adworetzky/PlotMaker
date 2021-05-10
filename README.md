@@ -47,6 +47,9 @@ The VIEWPORT section allows you to changes the size and scope of the panels foun
 
 The EXPORT UI controls the size of the image that is rendered out. OUTPUTWIDTH and OUTPUTHEIGHT are the actual pixel dimensions of the output canvas. After changing these, the user needs to press UPDATEBUFFERSIZE to trigger the change and the auto resizing of the image. SIZEPRESET allows you to pick from some common plotting sizes. SAVESVG renders out and SVG to the sketch folder titled output. SAVEPNG renders out a png to the same folder.
 
+## Known Issues
+
+Since we are dealing with vector shapes instead of pixels, the computational power needed is higher than you might expect. At the "postcard" size, everything runs at speed, however, at the larger sizes you might notice a bit of loading time. Also, decreasing the LINESPACING to 1 rather than 2 or higher GREATLY slows the program down because it has to check every single pixel in the image and draw a control point for it instead of simply half or a third.
 
 
 ## License
