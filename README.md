@@ -21,6 +21,11 @@ import at.mukprojects.console.*;
 ```
 The sketch needs the processing SVG library, HersheyText library, ControlP5 library, the Drop library, The Image Processing Algorithms library, and the Console library. All are available within the native processing library manager. Install before use and then run!
 
+## Output Examples
+![Alt text](Output/Image-5_5_2021_12_45_18.png "example image 1")
+![Alt text](Output/Image-5_5_2021_12_51_37.png "example image 2")
+![Alt text](Output/Image-5_5_2021_12_52_56.png "example image 2")
+
 ## Usage
 ### Image
 ![Alt text](screenshots/frame1ui.png "Frame 1")
