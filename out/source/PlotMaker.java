@@ -28,7 +28,7 @@ public class PlotMaker extends PApplet {
 // Use, add to, break, and fix however you would like. The only thing I ask is that you make cool stuff
 
 //Instructions before using:
-//Must install Drop, HersheyFont, Control.P5, and Processing.SVG. All are available in the native processing libraries tool
+//Must install processing SVG library, HersheyText library, ControlP5 library, the Drop library, The Image Processing Algorithms library, and the Console library. All are available in the native processing libraries tool
 
 // The random images pulled from the web are all from unsplash.com, the rights to said photos are free for commercial and non-commercial use. Policy can be found here:https://unsplash.com/license
 
@@ -138,9 +138,6 @@ public void setup() {
     // Hershey Font label set up
     hf = new HersheyFont(this, "futural.jhf");
     hf.textSize(5);
-
-    // Sdrop setup
-    drop = new SDrop(this);
 
     // set up UI
     cp5 = new ControlP5(this);
@@ -366,7 +363,10 @@ public void setup() {
         .setValue(1)
         .setPosition(uiOriginX+190, uiOriginY+65)
         .setSize(50, 20);
-    println("Loading Image...");
+    cp5.addButton("saveLoadedImage")
+        .setValue(1)
+        .setPosition(uiOriginX+250, uiOriginY+30)
+        .setSize(90, 20);
     cp5.addButton("newImage")
         .setValue(0)
         .setPosition(uiOriginX+120, uiOriginY+30)
@@ -457,6 +457,7 @@ public void setup() {
 
     cp5.getController("saveSVG").moveTo("Export");
     cp5.getController("savePNG").moveTo("Export");
+    cp5.getController("saveLoadedImage").moveTo("Export");
     cp5.getController("outputWidth").moveTo("Export");
     cp5.getController("outputHeight").moveTo("Export");
     cp5.getController("updateBufferSize").moveTo("Export");
@@ -627,6 +628,14 @@ public void savePNG() {
         println("exporting...");
         fi.save("Output/Image-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".png");
         println("Done!"+"Image-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".png"+" successfully exported!");
+    }
+}
+
+public void saveLoadedImage() {
+    if (frameCount > 0) {
+        println("exporting...");
+        ib.save("Output/LoadedImage" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".jpg");
+        println("Done!"+"LoadedImage-" + month() + "_" + day() + "_" + year() + "_" + hour() + "_" + minute() + "_" + second() + ".png"+" successfully exported!");
     }
 }
 
@@ -810,6 +819,7 @@ public void updateBufferSize() {
     println("Changing Slider Ranges...");
     textXPosSlider.setRange(-tb.width / 2, tb.width / 2);
     textYPosSlider.setRange(-tb.height / 2, tb.height / 2);
+    textBoxWidthSlider.setRange(0, tb.width / 2);
     println("Done!");
     }
 }
@@ -874,7 +884,7 @@ public void dropEvent(DropEvent theDropEvent) {
   println("isFile()\t"+theDropEvent.isFile());
   println("isImage()\t"+theDropEvent.isImage());
   println("isURL()\t"+theDropEvent.isURL());
-  
+
   // if the dropped object is an image, then 
   // load the image into our PImage.
     if(theDropEvent.isImage()) {
@@ -882,15 +892,7 @@ public void dropEvent(DropEvent theDropEvent) {
     imageForBuffer = theDropEvent.loadImage();
     println("Done");
   }
-  println("Resizing Image...");
-        if(imageForBuffer.height>imageForBuffer.width){
-        imageForBuffer.resize(ib.width, 0);
-        } else if(imageForBuffer.width>imageForBuffer.height){
-        imageForBuffer.resize(0, ib.height);    
-        }else if(imageForBuffer.width==imageForBuffer.height){
-        imageForBuffer.resize(0, ib.height);    
-        }
-    println("Done!");
+fitImage();
 imageForBuffer.loadPixels();
 }
 
